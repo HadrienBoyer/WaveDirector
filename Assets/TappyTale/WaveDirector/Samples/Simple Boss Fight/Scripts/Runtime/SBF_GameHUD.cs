@@ -9,15 +9,19 @@ namespace TappyTale.Samples.SimpleBossFight
     {
         [SerializeField] private Transform player;
         [SerializeField] private SBF_Health playerHealth;
+        [SerializeField] private float targetIconHeightOffset = 1.2f;
 
         private readonly Dictionary<SBF_Health, Slider> entityBars = new Dictionary<SBF_Health, Slider>(64);
         private readonly Dictionary<SBF_Health, Text> entityLabels = new Dictionary<SBF_Health, Text>(64);
         private static Font cachedHudFont;
 
         private RectTransform entitiesRoot;
+        private RectTransform canvasRoot;
+        private RectTransform targetIcon;
         private Slider playerBar;
         private Text playerLabel;
         private float nextRefreshAt;
+        private SBF_Gun playerGun;
 
         private void Awake()
         {
@@ -34,6 +38,7 @@ namespace TappyTale.Samples.SimpleBossFight
             }
 
             UpdateBars();
+            UpdateTargetIcon();
         }
 
         public void SetPlayer(Transform playerTransform)
@@ -66,6 +71,7 @@ namespace TappyTale.Samples.SimpleBossFight
 
             var root = canvas.transform as RectTransform;
             if (root == null) return;
+            canvasRoot = root;
 
             var overlay = CreateUiObject("FullScreenOverlay", root);
             Stretch(overlay);
@@ -80,6 +86,8 @@ namespace TappyTale.Samples.SimpleBossFight
             var crosshairImage = crosshair.gameObject.AddComponent<Image>();
             crosshairImage.color = new Color(1f, 1f, 1f, 0.85f);
             crosshairImage.raycastTarget = false;
+
+            targetIcon = CreateTargetIcon(root);
 
             entitiesRoot = CreateUiObject("EntityHealthPanel", root);
             entitiesRoot.anchorMin = new Vector2(0f, 1f);
@@ -207,6 +215,46 @@ namespace TappyTale.Samples.SimpleBossFight
             {
                 playerHealth = player.GetComponentInChildren<SBF_Health>(true);
             }
+
+            if (playerGun == null && player != null)
+            {
+                playerGun = player.GetComponentInChildren<SBF_Gun>(true);
+            }
+        }
+
+        private void UpdateTargetIcon()
+        {
+            if (targetIcon == null) return;
+
+            if (playerGun == null) TryResolvePlayerRefs();
+            var cam = Camera.main;
+            var target = playerGun != null ? playerGun.CurrentTarget : null;
+
+            if (cam == null || target == null || target.Hp <= 0f || !target.gameObject.activeInHierarchy)
+            {
+                targetIcon.gameObject.SetActive(false);
+                return;
+            }
+
+            Vector3 worldPos = target.transform.position + Vector3.up * targetIconHeightOffset;
+            Vector3 screenPos = cam.WorldToScreenPoint(worldPos);
+            if (screenPos.z <= 0f)
+            {
+                targetIcon.gameObject.SetActive(false);
+                return;
+            }
+
+            if (canvasRoot == null)
+            {
+                targetIcon.gameObject.SetActive(false);
+                return;
+            }
+
+            Vector2 localPos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRoot, screenPos, null, out localPos);
+
+            targetIcon.gameObject.SetActive(true);
+            targetIcon.anchoredPosition = localPos;
         }
 
         private static string BuildEntityLabel(SBF_Health h)
@@ -245,6 +293,37 @@ namespace TappyTale.Samples.SimpleBossFight
             t.color = new Color(1f, 1f, 1f, 0.95f);
             t.text = text;
             return t;
+        }
+
+        private static RectTransform CreateTargetIcon(Transform parent)
+        {
+            var icon = CreateUiObject("TargetLockIcon", parent);
+            icon.anchorMin = new Vector2(0.5f, 0.5f);
+            icon.anchorMax = new Vector2(0.5f, 0.5f);
+            icon.pivot = new Vector2(0.5f, 0.5f);
+            icon.sizeDelta = new Vector2(28f, 28f);
+
+            var color = new Color(1f, 0.3f, 0.25f, 0.95f);
+            CreateReticleSegment(icon, "Top", new Vector2(0f, 13f), new Vector2(2f, 8f), color);
+            CreateReticleSegment(icon, "Bottom", new Vector2(0f, -13f), new Vector2(2f, 8f), color);
+            CreateReticleSegment(icon, "Left", new Vector2(-13f, 0f), new Vector2(8f, 2f), color);
+            CreateReticleSegment(icon, "Right", new Vector2(13f, 0f), new Vector2(8f, 2f), color);
+            CreateReticleSegment(icon, "Center", Vector2.zero, new Vector2(4f, 4f), color);
+
+            icon.gameObject.SetActive(false);
+            return icon;
+        }
+
+        private static void CreateReticleSegment(RectTransform parent, string name, Vector2 anchoredPos, Vector2 size, Color color)
+        {
+            var rt = CreateUiObject(name, parent);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
+            var img = rt.gameObject.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
         }
 
         private static Font GetHudFont()

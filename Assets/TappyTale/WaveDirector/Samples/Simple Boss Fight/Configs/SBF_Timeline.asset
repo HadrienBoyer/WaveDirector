@@ -44,7 +44,7 @@ MonoBehaviour:
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 6228319173630785757, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 3
+    SpawnTime: 0
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 6228319173630785757, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
