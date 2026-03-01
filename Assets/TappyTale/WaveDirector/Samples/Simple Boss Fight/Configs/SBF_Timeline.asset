@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f65093559197f44dc987de69b4e5944c, type: 3}
   m_Name: SBF_Timeline
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveTimelineConfig
-  WaveCount: 2
+  WaveCount: 4
   DefaultWaveDurationSeconds: 20
   Waves:
   - Name: Survive (Minions)
@@ -33,52 +33,82 @@ MonoBehaviour:
     EnemySpeedScale: 1
     EnemyHealthScale: 1
     RewardScale: 1
+  - Name: Wave 3
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 4
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
   Events:
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 0
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: -0
+    IsBoss: 0
+  - WaveIndex: 2
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 1.6
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 1.5
-    IsBoss: 0
-  - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 3
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 4.5
     IsBoss: 0
-  - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 6
+  - WaveIndex: 1
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 2.5
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 7.5
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 9
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 10.5
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 12
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 13.5
     IsBoss: 0
-  - WaveIndex: 0
-    Prefab: {fileID: 1172886392436116301, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 15
+  - WaveIndex: 3
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 13
     IsBoss: 0
   - WaveIndex: 1
-    Prefab: {fileID: 7405865857000903100, guid: 74fc64a404dc346cfaefca9b93bc3002, type: 3}
-    SpawnTime: 0.5
+    Prefab: {fileID: 8470639252431644509, guid: 74fc64a404dc346cfaefca9b93bc3002, type: 3}
+    SpawnTime: 0
     IsBoss: 1
+  - WaveIndex: 0
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 7.75
+    IsBoss: 0
+  - WaveIndex: 0
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 8
+    IsBoss: 0
+  - WaveIndex: 3
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 2.5
+    IsBoss: 0

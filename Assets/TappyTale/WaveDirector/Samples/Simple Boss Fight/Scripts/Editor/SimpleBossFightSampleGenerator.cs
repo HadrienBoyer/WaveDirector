@@ -266,9 +266,16 @@ namespace TappyTale.WaveDirector.Editor
             go.tag = "Player";
 
             var cc = go.AddComponent<CharacterController>();
-            cc.height = 1.8f;
+            cc.height = 2f;
             cc.radius = 0.35f;
-            cc.center = new Vector3(0f, 0.9f, 0f);
+            cc.center = new Vector3(0f, 1f, 0f);
+
+            var hitCollider = go.AddComponent<CapsuleCollider>();
+            hitCollider.isTrigger = true;
+            hitCollider.direction = 1;
+            hitCollider.center = cc.center;
+            hitCollider.height = cc.height;
+            hitCollider.radius = cc.radius;
 
             var playerHealth = go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_Health>();
             TrySet(playerHealth, "team", TappyTale.Samples.SimpleBossFight.SBF_Team.Player);
@@ -360,7 +367,7 @@ namespace TappyTale.WaveDirector.Editor
             TrySet(bossAi, "projectileSpeed", 24f);
             TrySet(bossAi, "projectileLifetime", 3.5f);
             TrySet(bossAi, "projectileMuzzleDistance", 1.2f);
-            TrySet(bossAi, "projectileSpawnHeight", 1.3f);
+            TrySet(bossAi, "projectileSpawnHeight", 0.5f);
             bossAiSo.ApplyModifiedPropertiesWithoutUndo();
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_BossController>();
             ApplyMaterial(go, bossMaterial);

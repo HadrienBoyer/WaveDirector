@@ -4,6 +4,8 @@ namespace TappyTale.Samples.SimpleBossFight
 {
     public sealed class SBF_BossController : MonoBehaviour
     {
+        private const float BossProjectileSpawnHeight = 0.5f;
+
         [SerializeField] private SBF_Health health;
         [SerializeField] private SBF_EnemyNavAI navAI;
 
@@ -22,6 +24,7 @@ namespace TappyTale.Samples.SimpleBossFight
         {
             if (health == null) health = GetComponent<SBF_Health>();
             if (navAI == null) navAI = GetComponent<SBF_EnemyNavAI>();
+            if (navAI != null) navAI.SetProjectileSpawnHeight(BossProjectileSpawnHeight);
 
             objectiveTracker = objectiveTrackerBehaviour;
             if (health != null) health.Died += OnDied;

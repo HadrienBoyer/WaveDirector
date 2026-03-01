@@ -10,12 +10,17 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private Transform player;
         [SerializeField] private SBF_Health playerHealth;
         [SerializeField] private float targetIconHeightOffset = 1.2f;
+        [SerializeField] private float enemyHeadBarExtraHeight = 0.25f;
+        [SerializeField] private Vector2 enemyHeadBarSize = new Vector2(86f, 10f);
 
         private readonly Dictionary<SBF_Health, Slider> entityBars = new Dictionary<SBF_Health, Slider>(64);
         private readonly Dictionary<SBF_Health, Text> entityLabels = new Dictionary<SBF_Health, Text>(64);
+        private readonly Dictionary<SBF_Health, Slider> enemyHeadBars = new Dictionary<SBF_Health, Slider>(64);
+        private readonly List<SBF_Health> reusableRemoval = new List<SBF_Health>(64);
         private static Font cachedHudFont;
 
         private RectTransform entitiesRoot;
+        private RectTransform enemyHeadBarsRoot;
         private RectTransform canvasRoot;
         private RectTransform targetIcon;
         private Slider playerBar;
@@ -38,6 +43,7 @@ namespace TappyTale.Samples.SimpleBossFight
             }
 
             UpdateBars();
+            UpdateEnemyHeadBars();
             UpdateTargetIcon();
         }
 
@@ -88,6 +94,8 @@ namespace TappyTale.Samples.SimpleBossFight
             crosshairImage.raycastTarget = false;
 
             targetIcon = CreateTargetIcon(root);
+            enemyHeadBarsRoot = CreateUiObject("EnemyHeadBars", root);
+            Stretch(enemyHeadBarsRoot);
 
             entitiesRoot = CreateUiObject("EntityHealthPanel", root);
             entitiesRoot.anchorMin = new Vector2(0f, 1f);
@@ -133,22 +141,42 @@ namespace TappyTale.Samples.SimpleBossFight
                 {
                     CreateEntityRow(h);
                 }
+
+                if (h.Team == SBF_Team.Enemy && !enemyHeadBars.ContainsKey(h))
+                {
+                    CreateEnemyHeadBar(h);
+                }
             }
 
-            var toRemove = new List<SBF_Health>();
+            reusableRemoval.Clear();
             foreach (var kv in entityBars)
             {
                 if (!liveSet.Contains(kv.Key))
                 {
                     if (kv.Value != null) Destroy(kv.Value.transform.parent.gameObject);
-                    toRemove.Add(kv.Key);
+                    reusableRemoval.Add(kv.Key);
                 }
             }
 
-            for (int i = 0; i < toRemove.Count; i++)
+            for (int i = 0; i < reusableRemoval.Count; i++)
             {
-                entityBars.Remove(toRemove[i]);
-                entityLabels.Remove(toRemove[i]);
+                entityBars.Remove(reusableRemoval[i]);
+                entityLabels.Remove(reusableRemoval[i]);
+            }
+
+            reusableRemoval.Clear();
+            foreach (var kv in enemyHeadBars)
+            {
+                var h = kv.Key;
+                bool invalid = h == null || !liveSet.Contains(h) || h.Team != SBF_Team.Enemy;
+                if (!invalid) continue;
+                if (kv.Value != null) Destroy(kv.Value.gameObject);
+                reusableRemoval.Add(h);
+            }
+
+            for (int i = 0; i < reusableRemoval.Count; i++)
+            {
+                enemyHeadBars.Remove(reusableRemoval[i]);
             }
         }
 
@@ -181,6 +209,20 @@ namespace TappyTale.Samples.SimpleBossFight
             entityLabels[h] = label;
         }
 
+        private void CreateEnemyHeadBar(SBF_Health h)
+        {
+            if (enemyHeadBarsRoot == null || h == null) return;
+
+            var bar = CreateSlider("HeadBar_" + h.name, enemyHeadBarsRoot, TeamColor(h.Team), new Color(0.08f, 0.08f, 0.08f, 0.82f));
+            var rt = bar.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = enemyHeadBarSize;
+            bar.gameObject.SetActive(false);
+            enemyHeadBars[h] = bar;
+        }
+
         private void UpdateBars()
         {
             if (playerHealth != null && playerBar != null)
@@ -200,6 +242,47 @@ namespace TappyTale.Samples.SimpleBossFight
                 {
                     label.text = BuildEntityLabel(health);
                 }
+            }
+        }
+
+        private void UpdateEnemyHeadBars()
+        {
+            if (canvasRoot == null) return;
+            var cam = Camera.main;
+            if (cam == null)
+            {
+                foreach (var kv in enemyHeadBars)
+                {
+                    if (kv.Value != null) kv.Value.gameObject.SetActive(false);
+                }
+                return;
+            }
+
+            foreach (var kv in enemyHeadBars)
+            {
+                var health = kv.Key;
+                var bar = kv.Value;
+                if (health == null || bar == null) continue;
+
+                bar.SetValueWithoutNotify(health.Normalized);
+
+                var worldPos = GetEnemyHeadWorldPosition(health);
+                var screenPos = cam.WorldToScreenPoint(worldPos);
+                bool visible = screenPos.z > 0f &&
+                               screenPos.x >= 0f && screenPos.x <= Screen.width &&
+                               screenPos.y >= 0f && screenPos.y <= Screen.height;
+
+                if (!visible)
+                {
+                    bar.gameObject.SetActive(false);
+                    continue;
+                }
+
+                Vector2 localPos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRoot, screenPos, null, out localPos);
+                var rt = bar.GetComponent<RectTransform>();
+                if (rt != null) rt.anchoredPosition = localPos;
+                bar.gameObject.SetActive(true);
             }
         }
 
@@ -255,6 +338,19 @@ namespace TappyTale.Samples.SimpleBossFight
 
             targetIcon.gameObject.SetActive(true);
             targetIcon.anchoredPosition = localPos;
+        }
+
+        private Vector3 GetEnemyHeadWorldPosition(SBF_Health health)
+        {
+            var t = health.transform;
+            var col = t.GetComponentInChildren<Collider>();
+            if (col != null)
+            {
+                var b = col.bounds;
+                return new Vector3(b.center.x, b.max.y + enemyHeadBarExtraHeight, b.center.z);
+            }
+
+            return t.position + Vector3.up * (1.2f + enemyHeadBarExtraHeight);
         }
 
         private static string BuildEntityLabel(SBF_Health h)

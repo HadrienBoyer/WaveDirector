@@ -21,6 +21,10 @@ namespace TappyTale.Samples.SimpleBossFight
         private void Awake()
         {
             if (characterController == null) characterController = GetComponent<CharacterController>();
+            EnsureControllerHeight();
+            var health = GetComponent<SBF_Health>();
+            if (health != null) health.SetTeam(SBF_Team.Player);
+            EnsureHitCollider();
         }
 
         private void OnEnable()
@@ -110,6 +114,37 @@ namespace TappyTale.Samples.SimpleBossFight
 #else
             return new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 #endif
+        }
+
+        private void EnsureHitCollider()
+        {
+            var capsule = GetComponent<CapsuleCollider>();
+            if (capsule == null) capsule = gameObject.AddComponent<CapsuleCollider>();
+
+            // Keep this collider as a trigger so CharacterController remains the movement collider.
+            capsule.isTrigger = true;
+            capsule.direction = 1; // Y axis
+
+            if (characterController != null)
+            {
+                capsule.center = characterController.center;
+                capsule.height = characterController.height;
+                capsule.radius = characterController.radius;
+            }
+            else
+            {
+                capsule.center = new Vector3(0f, 0.9f, 0f);
+                capsule.height = 1.8f;
+                capsule.radius = 0.35f;
+            }
+        }
+
+        private void EnsureControllerHeight()
+        {
+            if (characterController == null) return;
+
+            characterController.height = 2f;
+            characterController.center = new Vector3(characterController.center.x, 1f, characterController.center.z);
         }
     }
 }

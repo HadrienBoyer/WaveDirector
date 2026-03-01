@@ -31,12 +31,19 @@ namespace TappyTale.Samples.SimpleBossFight
         private void Awake()
         {
             if (agent == null) agent = GetComponent<NavMeshAgent>();
+            var health = GetComponent<SBF_Health>();
+            if (health != null) health.SetTeam(SBF_Team.Enemy);
             TryResolveTarget(true);
             TryResolveProjectilePrefab();
             if (keepFixedY) SnapToFixedY();
         }
 
         public void SetTarget(Transform t) => target = t;
+
+        public void SetProjectileSpawnHeight(float y)
+        {
+            projectileSpawnHeight = y;
+        }
 
         public void OnSpawned()
         {

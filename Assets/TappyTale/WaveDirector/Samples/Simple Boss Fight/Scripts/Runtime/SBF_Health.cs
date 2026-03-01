@@ -65,6 +65,11 @@ namespace TappyTale.Samples.SimpleBossFight
             return true;
         }
 
+        public void SetTeam(SBF_Team value)
+        {
+            team = value;
+        }
+
         public void Heal(float amount)
         {
             if (amount <= 0f) return;
