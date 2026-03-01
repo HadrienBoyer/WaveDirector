@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6078812672850874904
+--- !u!1 &5768100917112773177
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,48 +8,51 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1809168142858899766}
-  - component: {fileID: 1791210009917379218}
-  - component: {fileID: 5026214471809322369}
-  - component: {fileID: 6395522214175934297}
-  - component: {fileID: 7027880232373465379}
+  - component: {fileID: 7657098491803187216}
+  - component: {fileID: 7921083300204369309}
+  - component: {fileID: 5301633324208084337}
+  - component: {fileID: 5556180166223657327}
+  - component: {fileID: 823152717845778760}
+  - component: {fileID: 1022754875438665995}
+  - component: {fileID: 1927028806173965939}
+  - component: {fileID: 4986435008866249692}
   m_Layer: 0
-  m_Name: WD_Demo_Boss
+  m_Name: SBF_Boss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1809168142858899766
+--- !u!4 &7657098491803187216
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078812672850874904}
+  m_GameObject: {fileID: 5768100917112773177}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6, y: 1.6, z: 1.6}
+  m_LocalScale: {x: 2.4, y: 2.4, z: 2.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &1791210009917379218
+--- !u!33 &7921083300204369309
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078812672850874904}
+  m_GameObject: {fileID: 5768100917112773177}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &5026214471809322369
+--- !u!135 &5301633324208084337
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078812672850874904}
+  m_GameObject: {fileID: 5768100917112773177}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -64,13 +67,13 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &6395522214175934297
+--- !u!23 &5556180166223657327
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078812672850874904}
+  m_GameObject: {fileID: 5768100917112773177}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -113,19 +116,72 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7027880232373465379
+--- !u!195 &823152717845778760
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5768100917112773177}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.49999997
+  m_Speed: 2.7
+  m_Acceleration: 14
+  avoidancePriority: 50
+  m_AngularSpeed: 540
+  m_StoppingDistance: 1.8
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 0.99999994
+  m_BaseOffset: 0.49999997
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &1022754875438665995
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6078812672850874904}
+  m_GameObject: {fileID: 5768100917112773177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3e96715d890a4c7fa8bc5aa517fe63b, type: 3}
+  m_Script: {fileID: 11500000, guid: 05a6bfd761c624a498cb1cb6c985305d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveEnemy
-  baseHealth: 10
-  baseMoveSpeed: 3
-  currentHealth: 0
-  currentMoveSpeed: 0
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_Health
+  maxHp: 100
+  destroyOnDeath: 1
+--- !u!114 &1927028806173965939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5768100917112773177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0737d9604f384038b847deb746e10ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI
+  agent: {fileID: 823152717845778760}
+  target: {fileID: 0}
+  attackRange: 1.8
+  attackDamage: 8
+  attackCooldown: 0.8
+--- !u!114 &4986435008866249692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5768100917112773177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4fe3f652a5f474db09d9719bdff9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_BossController
+  health: {fileID: 1022754875438665995}
+  navAI: {fileID: 1927028806173965939}
+  objectiveId: BossDead
+  objectiveTrackerBehaviour: {fileID: 0}

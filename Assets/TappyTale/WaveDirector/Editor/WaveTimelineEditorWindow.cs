@@ -111,8 +111,11 @@ namespace TappyTale
                                 if (selectedIndex >= 0 && selectedIndex < config.Events.Count)
                                 {
                                     int w = Mathf.Max(0, config.Events[selectedIndex].WaveIndex);
-                                    var director = FindObjectOfType<global::TappyTale.WaveDirector>(true);
-                                    if (director != null) director.StartPreviewWave(w);
+                                    var director = FindWaveDirectorComponent();
+                                    if (director != null)
+                                    {
+                                        director.SendMessage("StartPreviewWave", w, SendMessageOptions.DontRequireReceiver);
+                                    }
                                 }
                             }
                         }
@@ -498,6 +501,39 @@ namespace TappyTale
         {
             if (snap <= 0f) return value;
             return Mathf.Round(value / snap) * snap;
+        }
+
+        private static Component FindWaveDirectorComponent()
+        {
+            var directorType = FindTypeByFullName("TappyTale.WaveDirector");
+            if (directorType == null) return null;
+
+            var found = Resources.FindObjectsOfTypeAll(directorType);
+            for (int i = 0; i < found.Length; i++)
+            {
+                var c = found[i] as Component;
+                if (c == null) continue;
+                if (!c.gameObject.scene.IsValid()) continue; // Ignore prefab assets.
+                return c;
+            }
+
+            return null;
+        }
+
+        private static Type FindTypeByFullName(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName)) return null;
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            for (int i = 0; i < assemblies.Length; i++)
+            {
+                Type t = null;
+                try { t = assemblies[i].GetType(fullName, throwOnError: false); }
+                catch { }
+                if (t != null) return t;
+            }
+
+            return null;
         }
 
         private void SaveConfig()

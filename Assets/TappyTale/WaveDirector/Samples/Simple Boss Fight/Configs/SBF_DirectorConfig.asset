@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e16f025532c646ab861538d58685e8c, type: 3}
+  m_Name: SBF_DirectorConfig
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveDirectorConfig
+  Mode: 1
+  BaseDifficulty: 1
+  MinDifficulty: 0.8
+  MaxDifficulty: 1.6
+  AggressiveWaveRamp: 0.15
+  TargetClearTimeSeconds: 25
+  TargetDamageTaken: 15
+  TargetDeaths: 0
+  AdaptiveGain: 0.35
+  AdaptiveSmoothing: 0.75
+  MaxDeltaPerWave: 0.35
