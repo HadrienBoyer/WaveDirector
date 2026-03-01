@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Project Path="TappyTale.WaveDirector.Runtime.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Samples.Runtime.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Samples.Editor.csproj" />
+  <Project Path="TappyTale.WaveDirector.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+</Solution>

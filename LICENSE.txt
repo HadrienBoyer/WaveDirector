@@ -1,0 +1,4 @@
+Copyright (c) TappyTale
+
+This Asset Store package is licensed to the purchaser under the Unity Asset Store EULA.
+You may modify and use it in your games and projects, but you may not redistribute this package as a standalone asset.
