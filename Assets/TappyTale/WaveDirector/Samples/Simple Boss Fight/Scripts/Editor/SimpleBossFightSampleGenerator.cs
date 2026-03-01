@@ -507,8 +507,8 @@ namespace TappyTale.WaveDirector.Editor
             {
                 var camGo = new GameObject("Main Camera");
                 camGo.tag = "MainCamera";
-                camGo.transform.position = new Vector3(0f, 2.0f, -4.0f);
-                camGo.transform.rotation = Quaternion.Euler(10f, 0f, 0f);
+                camGo.transform.position = new Vector3(0f, 8.0f, -8.0f);
+                camGo.transform.rotation = Quaternion.Euler(45f, 0f, 0f);
                 cam = camGo.AddComponent<Camera>();
             }
 
@@ -524,6 +524,14 @@ namespace TappyTale.WaveDirector.Editor
                 var follow = cam.GetComponent<TappyTale.Samples.SimpleBossFight.SBF_CameraFollow>();
                 if (follow == null) follow = cam.gameObject.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_CameraFollow>();
                 follow.Target = target;
+                TrySet(follow, "offset", new Vector3(0f, 8f, -8f));
+                TrySet(follow, "lookAtTarget", true);
+                TrySet(follow, "rotationLerp", 12f);
+                if (target != null)
+                {
+                    cam.transform.position = target.TransformPoint(new Vector3(0f, 8f, -8f));
+                    cam.transform.LookAt(target.position, Vector3.up);
+                }
             }
 
             EnablePostProcessingOnCamera(cam);
