@@ -12,14 +12,20 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private float attackDamage = 8f;
         [SerializeField] private float attackCooldown = 0.8f;
         [SerializeField] private float fallbackMoveSpeed = 3.5f;
+        [SerializeField] private bool autoFindPlayerTarget = true;
+        [SerializeField] private bool keepFixedY = true;
+        [SerializeField] private float fixedY = 1f;
 
         private float lastAttackTime;
+        private float nextTargetSearchTime;
 
         private void Reset() => agent = GetComponent<NavMeshAgent>();
 
         private void Awake()
         {
             if (agent == null) agent = GetComponent<NavMeshAgent>();
+            TryResolveTarget(true);
+            if (keepFixedY) SnapToFixedY();
         }
 
         public void SetTarget(Transform t) => target = t;
@@ -28,6 +34,8 @@ namespace TappyTale.Samples.SimpleBossFight
         {
             // We'll attempt to re-enable the agent only when/where a valid NavMesh is present.
             lastAttackTime = Time.time;
+            TryResolveTarget(true);
+            if (keepFixedY) SnapToFixedY();
         }
 
         public void OnDespawned()
@@ -40,7 +48,11 @@ namespace TappyTale.Samples.SimpleBossFight
 
         private void Update()
         {
-            if (target == null) return;
+            if (target == null)
+            {
+                TryResolveTarget(false);
+                if (target == null) return;
+            }
 
             if (TryUseNavMesh())
             {
@@ -58,12 +70,14 @@ namespace TappyTale.Samples.SimpleBossFight
                 }
             }
 
+            if (keepFixedY) SnapToFixedY();
+
             float d = Vector3.Distance(transform.position, target.position);
             if (d <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
                 lastAttackTime = Time.time;
                 var hp = target.GetComponentInParent<SBF_Health>();
-                if (hp != null) hp.Damage(attackDamage);
+                if (hp != null) hp.ApplyDamage(attackDamage, SBF_Team.Enemy);
             }
         }
 
@@ -94,6 +108,25 @@ namespace TappyTale.Samples.SimpleBossFight
 
             agent.enabled = false;
             return false;
+        }
+
+        private void TryResolveTarget(bool immediate)
+        {
+            if (!autoFindPlayerTarget) return;
+            if (target != null) return;
+            if (!immediate && Time.time < nextTargetSearchTime) return;
+
+            nextTargetSearchTime = Time.time + 0.5f;
+            var player = GameObject.FindWithTag("Player");
+            if (player != null) target = player.transform;
+        }
+
+        private void SnapToFixedY()
+        {
+            var p = transform.position;
+            if (Mathf.Abs(p.y - fixedY) <= 0.0001f) return;
+            p.y = fixedY;
+            transform.position = p;
         }
     }
 }

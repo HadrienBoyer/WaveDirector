@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2241931238877056243
+--- !u!1 &7986969584599949483
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,14 +8,14 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4254995621525620328}
-  - component: {fileID: 3855168250483307662}
-  - component: {fileID: 8792658788699068027}
-  - component: {fileID: 346970234322154502}
-  - component: {fileID: 2905646923362064644}
-  - component: {fileID: 7214316059486742906}
-  - component: {fileID: 1730625617252383529}
-  - component: {fileID: 8375682504230277272}
+  - component: {fileID: 5366924976904171256}
+  - component: {fileID: 386664355751785878}
+  - component: {fileID: 4622170668368291305}
+  - component: {fileID: 2580084747469149122}
+  - component: {fileID: 503384423678947692}
+  - component: {fileID: 1129720514503971750}
+  - component: {fileID: 8027996498390950551}
+  - component: {fileID: 1978210887793689273}
   m_Layer: 0
   m_Name: SBF_Boss
   m_TagString: Untagged
@@ -23,13 +23,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4254995621525620328
+--- !u!4 &5366924976904171256
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -38,21 +38,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3855168250483307662
+--- !u!33 &386664355751785878
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &8792658788699068027
+--- !u!135 &4622170668368291305
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -67,13 +67,13 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &346970234322154502
+--- !u!23 &2580084747469149122
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -116,13 +116,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!195 &2905646923362064644
+--- !u!195 &503384423678947692
 NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 0.49999997
@@ -138,13 +138,13 @@ NavMeshAgent:
   m_BaseOffset: 0.49999997
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &7214316059486742906
+--- !u!114 &1129720514503971750
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05a6bfd761c624a498cb1cb6c985305d, type: 3}
@@ -152,37 +152,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_Health
   maxHp: 100
   destroyOnDeath: 1
---- !u!114 &1730625617252383529
+--- !u!114 &8027996498390950551
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0737d9604f384038b847deb746e10ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI
-  agent: {fileID: 2905646923362064644}
+  agent: {fileID: 503384423678947692}
   target: {fileID: 0}
   attackRange: 1.8
   attackDamage: 8
   attackCooldown: 0.8
   fallbackMoveSpeed: 3.5
---- !u!114 &8375682504230277272
+  autoFindPlayerTarget: 1
+  keepFixedY: 0
+  fixedY: 1
+--- !u!114 &1978210887793689273
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241931238877056243}
+  m_GameObject: {fileID: 7986969584599949483}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d4fe3f652a5f474db09d9719bdff9d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_BossController
-  health: {fileID: 7214316059486742906}
-  navAI: {fileID: 1730625617252383529}
+  health: {fileID: 1129720514503971750}
+  navAI: {fileID: 8027996498390950551}
   objectiveId: BossDead
   objectiveTrackerBehaviour: {fileID: 0}

@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f65093559197f44dc987de69b4e5944c, type: 3}
+  m_Name: SBF_Timeline1
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveTimelineConfig
+  WaveCount: 5
+  DefaultWaveDurationSeconds: 20
+  Waves:
+  - Name: Wave 1
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 2
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 3
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 4
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 5
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  Events:
+  - WaveIndex: 0
+    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 0
+    IsBoss: 0
+  - WaveIndex: 1
+    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 2.5
+    IsBoss: 0
+  - WaveIndex: 0
+    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 2
+    IsBoss: 0
+  - WaveIndex: 2
+    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 4
+    IsBoss: 0
+  - WaveIndex: 2
+    Prefab: {fileID: 2120108295416639160, guid: 74fc64a404dc346cfaefca9b93bc3002, type: 3}
+    SpawnTime: 7.5
+    IsBoss: 1
