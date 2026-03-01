@@ -12,6 +12,7 @@ namespace TappyTale.Samples.SimpleBossFight
 
         private readonly Dictionary<SBF_Health, Slider> entityBars = new Dictionary<SBF_Health, Slider>(64);
         private readonly Dictionary<SBF_Health, Text> entityLabels = new Dictionary<SBF_Health, Text>(64);
+        private static Font cachedHudFont;
 
         private RectTransform entitiesRoot;
         private Slider playerBar;
@@ -236,13 +237,37 @@ namespace TappyTale.Samples.SimpleBossFight
         {
             var rt = CreateUiObject(name, parent);
             var t = rt.gameObject.AddComponent<Text>();
-            t.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            var hudFont = GetHudFont();
+            if (hudFont != null) t.font = hudFont;
             t.fontSize = size;
             t.fontStyle = style;
             t.alignment = TextAnchor.MiddleLeft;
             t.color = new Color(1f, 1f, 1f, 0.95f);
             t.text = text;
             return t;
+        }
+
+        private static Font GetHudFont()
+        {
+            if (cachedHudFont != null) return cachedHudFont;
+
+            cachedHudFont = TryGetBuiltinFont("LegacyRuntime.ttf");
+            if (cachedHudFont != null) return cachedHudFont;
+
+            cachedHudFont = TryGetBuiltinFont("Arial.ttf");
+            return cachedHudFont;
+        }
+
+        private static Font TryGetBuiltinFont(string fontPath)
+        {
+            try
+            {
+                return Resources.GetBuiltinResource<Font>(fontPath);
+            }
+            catch (System.ArgumentException)
+            {
+                return null;
+            }
         }
 
         private static Slider CreateSlider(string name, Transform parent, Color fillColor, Color backgroundColor)
