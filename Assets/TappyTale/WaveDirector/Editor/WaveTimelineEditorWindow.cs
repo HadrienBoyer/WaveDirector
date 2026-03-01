@@ -39,19 +39,28 @@ namespace TappyTale
 
         private void OnGUI()
         {
-            DrawToolbar();
-
-            if (config == null)
+            var previousSkin = GUI.skin;
+            GUI.skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
+            try
             {
-                EditorGUILayout.HelpBox("Assign a WaveTimelineConfig asset to begin.", MessageType.Info);
-                return;
+                DrawToolbar();
+
+                if (config == null)
+                {
+                    EditorGUILayout.HelpBox("Assign a WaveTimelineConfig asset to begin.", MessageType.Info);
+                    return;
+                }
+
+                config.EnsureWaveDefinitions();
+
+                Rect timelineRect = new Rect(0, TopPadding, position.width, position.height - TopPadding);
+                DrawTimeline(timelineRect);
+                HandleDragAndDrop(timelineRect);
             }
-
-            config.EnsureWaveDefinitions();
-
-            Rect timelineRect = new Rect(0, TopPadding, position.width, position.height - TopPadding);
-            DrawTimeline(timelineRect);
-            HandleDragAndDrop(timelineRect);
+            finally
+            {
+                GUI.skin = previousSkin;
+            }
         }
 
         private void DrawToolbar()

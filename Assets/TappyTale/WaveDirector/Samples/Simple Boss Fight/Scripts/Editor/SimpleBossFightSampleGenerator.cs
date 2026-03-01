@@ -253,6 +253,7 @@ namespace TappyTale.WaveDirector.Editor
             agent.angularSpeed = 720f;
             agent.acceleration = 18f;
             agent.stoppingDistance = 1.2f;
+            agent.enabled = false;
 
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_Health>();
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>();
@@ -276,6 +277,7 @@ namespace TappyTale.WaveDirector.Editor
             agent.angularSpeed = 540f;
             agent.acceleration = 14f;
             agent.stoppingDistance = 1.8f;
+            agent.enabled = false;
 
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_Health>();
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>();
@@ -450,19 +452,18 @@ namespace TappyTale.WaveDirector.Editor
         {
             var player = GameObject.FindWithTag("Player")?.transform;
 
-            var tracker = FindObjectOfType<MonoBehaviour>(true); // we'll look for a component named WaveObjectiveTracker
             MonoBehaviour objectiveTracker = null;
-            var all = FindObjectsOfType<MonoBehaviour>(true);
+            var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < all.Length; i++)
             {
                 if (all[i] == null) continue;
                 if (all[i].GetType().Name == "WaveObjectiveTracker") { objectiveTracker = all[i]; break; }
             }
 
-            var enemies = FindObjectsOfType<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>(true);
+            var enemies = FindObjectsByType<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < enemies.Length; i++) enemies[i].SetTarget(player);
 
-            var bosses = FindObjectsOfType<TappyTale.Samples.SimpleBossFight.SBF_BossController>(true);
+            var bosses = FindObjectsByType<TappyTale.Samples.SimpleBossFight.SBF_BossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             for (int i = 0; i < bosses.Length; i++)
             {
                 bosses[i].SetTarget(player);
