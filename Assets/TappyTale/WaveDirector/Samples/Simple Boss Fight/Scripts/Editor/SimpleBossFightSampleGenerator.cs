@@ -321,6 +321,8 @@ namespace TappyTale.WaveDirector.Editor
 
             var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             player.transform.position = new Vector3(0f, 0f, -6f);
+            EnsureSceneCamera(player.transform);
+            EnsureSceneEventSystem();
 
             var waveSystem = new GameObject("WaveSystem");
 
@@ -355,6 +357,62 @@ namespace TappyTale.WaveDirector.Editor
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.ImportAsset(ScenePath);
             return AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
+        }
+
+        private static void EnsureSceneCamera(Transform target)
+        {
+            Camera cam = Camera.main;
+            if (cam == null)
+            {
+                var camGo = new GameObject("Main Camera");
+                camGo.tag = "MainCamera";
+                camGo.transform.position = new Vector3(0f, 2.0f, -4.0f);
+                camGo.transform.rotation = Quaternion.Euler(10f, 0f, 0f);
+                cam = camGo.AddComponent<Camera>();
+            }
+
+            if (cam != null && cam.GetComponent<AudioListener>() == null)
+            {
+                cam.gameObject.AddComponent<AudioListener>();
+            }
+
+            if (cam != null)
+            {
+                var follow = cam.GetComponent<TappyTale.Samples.SimpleBossFight.SBF_CameraFollow>();
+                if (follow == null) follow = cam.gameObject.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_CameraFollow>();
+                follow.Target = target;
+            }
+        }
+
+        private static void EnsureSceneEventSystem()
+        {
+            var eventSystemType = WaveDirectorTypeUtil.FindTypeByFullName("UnityEngine.EventSystems.EventSystem");
+            if (eventSystemType == null) return;
+
+            var existing = Resources.FindObjectsOfTypeAll(eventSystemType);
+            for (int i = 0; i < existing.Length; i++)
+            {
+                var c = existing[i] as Component;
+                if (c == null) continue;
+                if (!c.gameObject.scene.IsValid()) continue;
+                return;
+            }
+
+            var go = new GameObject("EventSystem");
+            go.AddComponent(eventSystemType);
+
+            var standaloneInputModuleType = WaveDirectorTypeUtil.FindTypeByFullName("UnityEngine.EventSystems.StandaloneInputModule");
+            if (standaloneInputModuleType != null)
+            {
+                go.AddComponent(standaloneInputModuleType);
+                return;
+            }
+
+            var inputSystemModuleType = WaveDirectorTypeUtil.FindTypeByFullName("UnityEngine.InputSystem.UI.InputSystemUIInputModule");
+            if (inputSystemModuleType != null)
+            {
+                go.AddComponent(inputSystemModuleType);
+            }
         }
 
         private static void Assign(SerializedObject so, string prop, UnityEngine.Object value)

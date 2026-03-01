@@ -60,6 +60,7 @@ namespace TappyTale
 
         private void Awake()
         {
+            TryAutoAssignConfigs();
             if (timelineConfig != null) timelineConfig.EnsureWaveDefinitions();
 
             playerPerformanceProvider = playerPerformanceProviderBehaviour as IPlayerPerformanceProvider;
@@ -86,9 +87,11 @@ namespace TappyTale
 
         private void Start()
         {
+            TryAutoAssignConfigs();
+
             if (timelineConfig == null)
             {
-                Debug.LogError("[WaveDirector] Missing TimelineConfig.");
+                Debug.LogError("[WaveDirector] Missing TimelineConfig. Assign one in the inspector (or keep only one WaveTimelineConfig loaded to allow auto-assign).");
                 return;
             }
 
@@ -424,6 +427,41 @@ namespace TappyTale
 
         private int dataTotalKills;
         private float dataTotalTime;
+
+        private void TryAutoAssignConfigs()
+        {
+            if (timelineConfig == null)
+            {
+                timelineConfig = PickSingleLoadedConfig(Resources.FindObjectsOfTypeAll<WaveTimelineConfig>());
+            }
+
+            if (directorConfig == null)
+            {
+                directorConfig = PickSingleLoadedConfig(Resources.FindObjectsOfTypeAll<WaveDirectorConfig>());
+            }
+        }
+
+        private static T PickSingleLoadedConfig<T>(T[] configs) where T : ScriptableObject
+        {
+            if (configs == null || configs.Length == 0) return null;
+
+            T selected = null;
+            for (int i = 0; i < configs.Length; i++)
+            {
+                var cfg = configs[i];
+                if (cfg == null) continue;
+
+#if UNITY_EDITOR
+                // Restrict editor auto-pick to project assets to avoid transient clones.
+                if (!UnityEditor.EditorUtility.IsPersistent(cfg)) continue;
+#endif
+
+                if (selected != null) return null; // Ambiguous: more than one candidate.
+                selected = cfg;
+            }
+
+            return selected;
+        }
     }
 
     public static class TimelineGuidUtility

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &614816916804959782
+--- !u!1 &1637358751856066966
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,11 +8,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1782004095717125644}
-  - component: {fileID: 6045383289002802694}
-  - component: {fileID: 2303494444114610370}
-  - component: {fileID: 7796676217105199163}
-  - component: {fileID: 6890560461988723861}
+  - component: {fileID: 1553340205690034164}
+  - component: {fileID: 4148743202743759843}
+  - component: {fileID: 6818807578116602442}
+  - component: {fileID: 9083345842809108066}
+  - component: {fileID: 5221733582901609385}
   m_Layer: 0
   m_Name: SBF_Player
   m_TagString: Player
@@ -20,13 +20,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1782004095717125644
+--- !u!4 &1553340205690034164
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614816916804959782}
+  m_GameObject: {fileID: 1637358751856066966}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -35,13 +35,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &6045383289002802694
+--- !u!143 &4148743202743759843
 CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614816916804959782}
+  m_GameObject: {fileID: 1637358751856066966}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -60,13 +60,13 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &2303494444114610370
+--- !u!114 &6818807578116602442
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614816916804959782}
+  m_GameObject: {fileID: 1637358751856066966}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05a6bfd761c624a498cb1cb6c985305d, type: 3}
@@ -74,13 +74,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_Health
   maxHp: 100
   destroyOnDeath: 1
---- !u!114 &7796676217105199163
+--- !u!114 &9083345842809108066
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614816916804959782}
+  m_GameObject: {fileID: 1637358751856066966}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db8db15975ab04454a04be1cc302fdbc, type: 3}
@@ -88,14 +88,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.Samples.SimpleBossFight.SBF_PlayerController
   moveSpeed: 6
   lookSensitivity: 2
-  characterController: {fileID: 6045383289002802694}
---- !u!114 &6890560461988723861
+  characterController: {fileID: 4148743202743759843}
+--- !u!114 &5221733582901609385
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 614816916804959782}
+  m_GameObject: {fileID: 1637358751856066966}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 017ed661a4a64498a845fe8d2036ac8a, type: 3}
