@@ -11,6 +11,12 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private float attackRange = 1.8f;
         [SerializeField] private float attackDamage = 8f;
         [SerializeField] private float attackCooldown = 0.8f;
+        [SerializeField] private bool useProjectileAttack = true;
+        [SerializeField] private GameObject projectilePrefab;
+        [SerializeField] private float projectileSpeed = 22f;
+        [SerializeField] private float projectileLifetime = 2.8f;
+        [SerializeField] private float projectileMuzzleDistance = 0.8f;
+        [SerializeField] private float projectileSpawnHeight = 1.0f;
         [SerializeField] private float fallbackMoveSpeed = 3.5f;
         [SerializeField] private bool autoFindPlayerTarget = true;
         [SerializeField] private bool keepFixedY = true;
@@ -18,6 +24,7 @@ namespace TappyTale.Samples.SimpleBossFight
 
         private float lastAttackTime;
         private float nextTargetSearchTime;
+        private GameObject cachedProjectilePrefab;
 
         private void Reset() => agent = GetComponent<NavMeshAgent>();
 
@@ -25,6 +32,7 @@ namespace TappyTale.Samples.SimpleBossFight
         {
             if (agent == null) agent = GetComponent<NavMeshAgent>();
             TryResolveTarget(true);
+            TryResolveProjectilePrefab();
             if (keepFixedY) SnapToFixedY();
         }
 
@@ -35,6 +43,7 @@ namespace TappyTale.Samples.SimpleBossFight
             // We'll attempt to re-enable the agent only when/where a valid NavMesh is present.
             lastAttackTime = Time.time;
             TryResolveTarget(true);
+            TryResolveProjectilePrefab();
             if (keepFixedY) SnapToFixedY();
         }
 
@@ -76,8 +85,67 @@ namespace TappyTale.Samples.SimpleBossFight
             if (d <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
                 lastAttackTime = Time.time;
-                var hp = target.GetComponentInParent<SBF_Health>();
-                if (hp != null) hp.ApplyDamage(attackDamage, SBF_Team.Enemy);
+                if (!TryFireProjectileAtTarget())
+                {
+                    var hp = target.GetComponentInParent<SBF_Health>();
+                    if (hp != null) hp.ApplyDamage(attackDamage, SBF_Team.Enemy);
+                }
+            }
+        }
+
+        private bool TryFireProjectileAtTarget()
+        {
+            if (!useProjectileAttack) return false;
+            var prefab = TryResolveProjectilePrefab();
+            if (prefab == null) return false;
+            if (target == null) return false;
+
+            Vector3 toTarget = target.position - transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude <= 0.0001f) return false;
+
+            Vector3 forward = toTarget.normalized;
+            transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+
+            Vector3 origin = transform.position + Vector3.up * projectileSpawnHeight + forward * projectileMuzzleDistance;
+            var projectileGo = Instantiate(prefab, origin, Quaternion.LookRotation(forward, Vector3.up));
+            if (projectileGo == null) return false;
+
+            IgnoreShooterCollisions(projectileGo);
+
+            var projectile = projectileGo.GetComponent<SBF_Projectile>();
+            if (projectile != null)
+            {
+                projectile.Launch(forward, projectileSpeed, attackDamage, projectileLifetime, SBF_Team.Enemy);
+            }
+
+            return true;
+        }
+
+        private GameObject TryResolveProjectilePrefab()
+        {
+            if (projectilePrefab != null) return projectilePrefab;
+            if (cachedProjectilePrefab != null) return cachedProjectilePrefab;
+
+            var player = GameObject.FindWithTag("Player");
+            var gun = player != null ? player.GetComponent<SBF_Gun>() : null;
+            if (gun == null) return null;
+
+            cachedProjectilePrefab = gun.ProjectilePrefab;
+            return cachedProjectilePrefab;
+        }
+
+        private void IgnoreShooterCollisions(GameObject projectileGo)
+        {
+            var projectileCollider = projectileGo.GetComponent<Collider>();
+            if (projectileCollider == null) return;
+
+            var selfColliders = GetComponentsInChildren<Collider>();
+            for (int i = 0; i < selfColliders.Length; i++)
+            {
+                var c = selfColliders[i];
+                if (c == null) continue;
+                Physics.IgnoreCollision(projectileCollider, c, true);
             }
         }
 

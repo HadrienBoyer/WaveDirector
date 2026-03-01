@@ -92,8 +92,8 @@ namespace TappyTale.WaveDirector.Editor
                 true);
 
             var projectilePrefab = CreateProjectilePrefab(PrefabsFolder + "/SBF_Projectile.prefab", projectileMaterial);
-            var minionPrefab = CreateMinionPrefab(PrefabsFolder + "/SBF_Minion.prefab", minionMaterial);
-            var bossPrefab = CreateBossPrefab(PrefabsFolder + "/SBF_Boss.prefab", bossMaterial);
+            var minionPrefab = CreateMinionPrefab(PrefabsFolder + "/SBF_Minion.prefab", minionMaterial, projectilePrefab);
+            var bossPrefab = CreateBossPrefab(PrefabsFolder + "/SBF_Boss.prefab", bossMaterial, projectilePrefab);
             var arenaPrefab = CreateArenaPrefab(PrefabsFolder + "/SBF_Arena.prefab");
             var playerPrefab = CreatePlayerPrefab(PrefabsFolder + "/SBF_Player.prefab", playerMaterial, projectilePrefab);
 
@@ -287,13 +287,14 @@ namespace TappyTale.WaveDirector.Editor
             var bodyCollider = body.GetComponent<Collider>();
             if (bodyCollider != null) UnityEngine.Object.DestroyImmediate(bodyCollider);
             ApplyMaterial(body, playerMaterial);
+            TrySet(gun, "muzzleTransform", body.transform);
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(go, path);
             UnityEngine.Object.DestroyImmediate(go);
             return prefab;
         }
 
-        private static GameObject CreateMinionPrefab(string path, Material minionMaterial)
+        private static GameObject CreateMinionPrefab(string path, Material minionMaterial, GameObject projectilePrefab)
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (existing != null) return existing;
@@ -315,6 +316,14 @@ namespace TappyTale.WaveDirector.Editor
             var minionAiSo = new SerializedObject(minionAi);
             TrySet(minionAi, "keepFixedY", true);
             TrySet(minionAi, "fixedY", 1f);
+            TrySet(minionAi, "attackRange", 13f);
+            TrySet(minionAi, "attackCooldown", 1.15f);
+            TrySet(minionAi, "attackDamage", 8f);
+            TrySet(minionAi, "projectilePrefab", projectilePrefab);
+            TrySet(minionAi, "projectileSpeed", 18f);
+            TrySet(minionAi, "projectileLifetime", 3f);
+            TrySet(minionAi, "projectileMuzzleDistance", 0.7f);
+            TrySet(minionAi, "projectileSpawnHeight", 1f);
             minionAiSo.ApplyModifiedPropertiesWithoutUndo();
             ApplyMaterial(go, minionMaterial);
 
@@ -323,7 +332,7 @@ namespace TappyTale.WaveDirector.Editor
             return prefab;
         }
 
-        private static GameObject CreateBossPrefab(string path, Material bossMaterial)
+        private static GameObject CreateBossPrefab(string path, Material bossMaterial, GameObject projectilePrefab)
         {
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (existing != null) return existing;
@@ -344,6 +353,14 @@ namespace TappyTale.WaveDirector.Editor
             var bossAi = go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>();
             var bossAiSo = new SerializedObject(bossAi);
             TrySet(bossAi, "keepFixedY", false);
+            TrySet(bossAi, "attackRange", 18f);
+            TrySet(bossAi, "attackCooldown", 0.75f);
+            TrySet(bossAi, "attackDamage", 14f);
+            TrySet(bossAi, "projectilePrefab", projectilePrefab);
+            TrySet(bossAi, "projectileSpeed", 24f);
+            TrySet(bossAi, "projectileLifetime", 3.5f);
+            TrySet(bossAi, "projectileMuzzleDistance", 1.2f);
+            TrySet(bossAi, "projectileSpawnHeight", 1.3f);
             bossAiSo.ApplyModifiedPropertiesWithoutUndo();
             go.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_BossController>();
             ApplyMaterial(go, bossMaterial);

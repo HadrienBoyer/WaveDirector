@@ -11,6 +11,7 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private float moveSpeed = 6f;
         [SerializeField] private float lookSensitivity = 2f;
         [SerializeField] private CharacterController characterController;
+        [SerializeField] private bool lockAndHideCursor = true;
 
         private float yaw;
         private float pitch;
@@ -20,6 +21,22 @@ namespace TappyTale.Samples.SimpleBossFight
         private void Awake()
         {
             if (characterController == null) characterController = GetComponent<CharacterController>();
+        }
+
+        private void OnEnable()
+        {
+            ApplyCursorState();
+        }
+
+        private void OnDisable()
+        {
+            ReleaseCursorState();
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) return;
+            ApplyCursorState();
         }
 
         private void Update()
@@ -43,6 +60,20 @@ namespace TappyTale.Samples.SimpleBossFight
             velocity.y = -2f;
 
             characterController.Move(velocity * Time.deltaTime);
+        }
+
+        private void ApplyCursorState()
+        {
+            if (!lockAndHideCursor) return;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
+        private void ReleaseCursorState()
+        {
+            if (!lockAndHideCursor) return;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         private static Vector2 ReadLookDelta()

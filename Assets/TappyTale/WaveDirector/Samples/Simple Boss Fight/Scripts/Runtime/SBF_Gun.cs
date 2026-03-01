@@ -8,6 +8,7 @@ namespace TappyTale.Samples.SimpleBossFight
     public sealed class SBF_Gun : MonoBehaviour
     {
         [SerializeField] private Camera cam;
+        [SerializeField] private Transform muzzleTransform;
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private float projectileDamage = 25f;
         [SerializeField] private float projectileSpeed = 45f;
@@ -16,15 +17,20 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private float fireCooldown = 0.15f;
 
         private float lastFireTime;
+        public GameObject ProjectilePrefab => projectilePrefab;
 
         private void Awake()
         {
             if (cam == null) cam = Camera.main;
+            if (muzzleTransform == null)
+            {
+                var body = transform.Find("Body");
+                if (body != null) muzzleTransform = body;
+            }
         }
 
         private void Update()
         {
-            if (cam == null) return;
             if (!IsFirePressed()) return;
             if (Time.time < lastFireTime + fireCooldown) return;
 
@@ -45,8 +51,11 @@ namespace TappyTale.Samples.SimpleBossFight
         {
             if (projectilePrefab == null) return;
 
-            Vector3 origin = cam.transform.position + cam.transform.forward * muzzleDistance;
-            Quaternion rot = Quaternion.LookRotation(cam.transform.forward, Vector3.up);
+            Vector3 forward = cam != null ? cam.transform.forward : transform.forward;
+            Vector3 origin = muzzleTransform != null
+                ? muzzleTransform.position + forward * muzzleDistance
+                : transform.position + Vector3.up * 0.9f + forward * muzzleDistance;
+            Quaternion rot = Quaternion.LookRotation(forward, Vector3.up);
             var go = Instantiate(projectilePrefab, origin, rot);
             if (go == null) return;
 
@@ -54,7 +63,7 @@ namespace TappyTale.Samples.SimpleBossFight
             if (projectile != null)
             {
                 projectile.Launch(
-                    cam.transform.forward,
+                    forward,
                     projectileSpeed,
                     projectileDamage,
                     projectileLifetime,
@@ -65,6 +74,11 @@ namespace TappyTale.Samples.SimpleBossFight
         public void SetCamera(Camera cameraRef)
         {
             cam = cameraRef;
+        }
+
+        public void SetMuzzle(Transform muzzle)
+        {
+            muzzleTransform = muzzle;
         }
     }
 }

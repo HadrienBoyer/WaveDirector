@@ -19,7 +19,7 @@ MonoBehaviour:
     TriggerType: 0
     TriggerTimeSeconds: 18
     TriggerKillCount: 10
-    TriggerObjectiveId: 
+    TriggerObjectiveId: TriggerObj
     SpawnTimeScale: 1
     EnemySpeedScale: 1
     EnemyHealthScale: 1
@@ -34,13 +34,13 @@ MonoBehaviour:
     EnemyHealthScale: 1
     RewardScale: 1
   Events:
-  - WaveIndex: 0
+  - WaveIndex: 1
     Prefab: {fileID: 6228319173630785757, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 0
     IsBoss: 0
-  - WaveIndex: 0
+  - WaveIndex: 1
     Prefab: {fileID: 6228319173630785757, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 1.5
+    SpawnTime: 0.8
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 6228319173630785757, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
@@ -80,5 +80,5 @@ MonoBehaviour:
     IsBoss: 0
   - WaveIndex: 1
     Prefab: {fileID: 7028352970140108763, guid: 74fc64a404dc346cfaefca9b93bc3002, type: 3}
-    SpawnTime: 0.5
+    SpawnTime: 3.5
     IsBoss: 1

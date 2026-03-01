@@ -29,6 +29,7 @@ namespace TappyTale
 
         [Header("Save & Analytics")]
         [SerializeField] private bool enableSave = true;
+        [SerializeField] private bool resumeFromLastSavedWave = false;
         [SerializeField] private bool enableAnalytics = true;
 
         [Header("Runtime (Read Only)")]
@@ -100,7 +101,14 @@ namespace TappyTale
                 Debug.LogWarning("[WaveDirector] Missing DirectorConfig, using defaults.");
             }
 
-            if (enableSave) TryLoadProgress();
+            if (enableSave && resumeFromLastSavedWave)
+            {
+                TryLoadProgress();
+            }
+            else
+            {
+                currentWaveIndex = 0;
+            }
 
             StartRunning();
         }

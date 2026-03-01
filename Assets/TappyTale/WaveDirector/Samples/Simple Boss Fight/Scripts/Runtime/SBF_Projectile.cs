@@ -10,13 +10,18 @@ namespace TappyTale.Samples.SimpleBossFight
         [SerializeField] private float lifeTime = 2.5f;
         [SerializeField] private SBF_Team sourceTeam = SBF_Team.Player;
         [SerializeField] private bool destroyOnHit = true;
+        [SerializeField] private bool ensureSphereVisual = true;
+        [SerializeField] private float sphereVisualRadius = 0.12f;
+        [SerializeField] private Material fallbackVisualMaterial;
 
         private float expireAt;
         private Rigidbody rb;
+        private static Mesh cachedSphereMesh;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            EnsureSphereVisualMesh();
         }
 
         private void OnEnable()
@@ -82,6 +87,52 @@ namespace TappyTale.Samples.SimpleBossFight
             {
                 Destroy(gameObject);
             }
+        }
+
+        private void EnsureSphereVisualMesh()
+        {
+            if (!ensureSphereVisual) return;
+            if (HasVisibleMesh()) return;
+
+            var visual = new GameObject("ProjectileVisual");
+            visual.transform.SetParent(transform, false);
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localRotation = Quaternion.identity;
+            float diameter = Mathf.Max(0.02f, sphereVisualRadius * 2f);
+            visual.transform.localScale = new Vector3(diameter, diameter, diameter);
+
+            var filter = visual.AddComponent<MeshFilter>();
+            var renderer = visual.AddComponent<MeshRenderer>();
+            filter.sharedMesh = GetBuiltinSphereMesh();
+            if (fallbackVisualMaterial != null)
+            {
+                renderer.sharedMaterial = fallbackVisualMaterial;
+            }
+        }
+
+        private bool HasVisibleMesh()
+        {
+            var filters = GetComponentsInChildren<MeshFilter>(true);
+            var renderers = GetComponentsInChildren<MeshRenderer>(true);
+            return filters != null && filters.Length > 0 && renderers != null && renderers.Length > 0;
+        }
+
+        private static Mesh GetBuiltinSphereMesh()
+        {
+            if (cachedSphereMesh != null) return cachedSphereMesh;
+
+            var temp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            try
+            {
+                var mf = temp.GetComponent<MeshFilter>();
+                cachedSphereMesh = mf != null ? mf.sharedMesh : null;
+            }
+            finally
+            {
+                Destroy(temp);
+            }
+
+            return cachedSphereMesh;
         }
     }
 }
