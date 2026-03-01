@@ -35,7 +35,7 @@ namespace TappyTale.Samples.SimpleBossFight
         private void FixedUpdate()
         {
             if (rb == null) return;
-            rb.velocity = transform.forward * Mathf.Max(0f, speed);
+            rb.linearVelocity = transform.forward * Mathf.Max(0f, speed);
         }
 
         private void OnTriggerEnter(Collider other)

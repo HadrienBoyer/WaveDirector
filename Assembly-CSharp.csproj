@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/SaveAndAnalytics.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/WaveInterfaces.cs" />
+    <Compile Include="Assets/TappyTale/WaveDirector/Runtime/Pooling.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/WaveEnemy.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/WaveTimelineConfig.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/WavePreviewRunner.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_PlayerController.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_Projectile.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/WaveSpawner.cs" />
+    <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_GameHUD.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_CameraFollow.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/PoolRegistry.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_EnemyNavAI.cs" />

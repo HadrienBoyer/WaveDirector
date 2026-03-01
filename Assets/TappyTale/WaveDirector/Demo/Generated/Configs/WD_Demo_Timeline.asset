@@ -44,34 +44,34 @@ MonoBehaviour:
     RewardScale: 1
   Events:
   - WaveIndex: 0
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 0
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 2
     IsBoss: 0
   - WaveIndex: 0
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 4
     IsBoss: 0
   - WaveIndex: 1
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 0
     IsBoss: 0
   - WaveIndex: 1
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 1.5
     IsBoss: 0
   - WaveIndex: 1
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 3
     IsBoss: 0
   - WaveIndex: 2
-    Prefab: {fileID: 616106397466172081, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 0
     IsBoss: 0
   - WaveIndex: 2
-    Prefab: {fileID: 2120108295416639160, guid: 74fc64a404dc346cfaefca9b93bc3002, type: 3}
+    Prefab: {fileID: 0}
     SpawnTime: 6
     IsBoss: 1
