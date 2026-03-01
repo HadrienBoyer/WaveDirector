@@ -246,10 +246,13 @@ namespace TappyTale.WaveDirector.Editor
 
         private static void TryAddNavMeshSurfaceAndBake(GameObject root)
         {
+            if (root == null) return;
+
             var t = WaveDirectorTypeUtil.FindTypeByFullName("Unity.AI.Navigation.NavMeshSurface");
             if (t == null) return;
 
-            var comp = root.AddComponent(t);
+            var comp = root.GetComponent(t);
+            if (comp == null) comp = root.AddComponent(t);
             var build = t.GetMethod("BuildNavMesh", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (build != null) { try { build.Invoke(comp, null); } catch { } }
         }
@@ -410,7 +413,8 @@ namespace TappyTale.WaveDirector.Editor
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            PrefabUtility.InstantiatePrefab(arenaPrefab);
+            var arena = PrefabUtility.InstantiatePrefab(arenaPrefab) as GameObject;
+            if (arena != null) TryAddNavMeshSurfaceAndBake(arena);
 
             var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
             player.transform.position = new Vector3(0f, 0f, -6f);
@@ -472,7 +476,7 @@ namespace TappyTale.WaveDirector.Editor
             }
 
             // Small runtime wiring helper
-            waveSystem.AddComponent<SBF_SceneBootstrap>();
+            waveSystem.AddComponent<TappyTale.Samples.SimpleBossFight.SBF_SceneBootstrap>();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.ImportAsset(ScenePath);
@@ -858,32 +862,5 @@ namespace TappyTale.WaveDirector.Editor
         }
     }
 
-    // Scene runtime wiring helper: set enemy targets + hook boss objective tracker if present.
-    [DisallowMultipleComponent]
-    internal sealed class SBF_SceneBootstrap : MonoBehaviour
-    {
-        private void Start()
-        {
-            var player = GameObject.FindWithTag("Player")?.transform;
-
-            MonoBehaviour objectiveTracker = null;
-            var all = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            for (int i = 0; i < all.Length; i++)
-            {
-                if (all[i] == null) continue;
-                if (all[i].GetType().Name == "WaveObjectiveTracker") { objectiveTracker = all[i]; break; }
-            }
-
-            var enemies = FindObjectsByType<TappyTale.Samples.SimpleBossFight.SBF_EnemyNavAI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            for (int i = 0; i < enemies.Length; i++) enemies[i].SetTarget(player);
-
-            var bosses = FindObjectsByType<TappyTale.Samples.SimpleBossFight.SBF_BossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            for (int i = 0; i < bosses.Length; i++)
-            {
-                bosses[i].SetTarget(player);
-                if (objectiveTracker != null) bosses[i].SetObjectiveTracker(objectiveTracker);
-            }
-        }
-    }
 }
 #endif

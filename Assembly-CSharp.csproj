@@ -69,6 +69,7 @@
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_GameHUD.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_CameraFollow.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Runtime/PoolRegistry.cs" />
+    <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_SceneBootstrap.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_EnemyNavAI.cs" />
     <Compile Include="Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/Scripts/Runtime/SBF_Health.cs" />
   </ItemGroup>
