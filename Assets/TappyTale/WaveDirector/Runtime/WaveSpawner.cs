@@ -1,39 +1,54 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
     public sealed class WaveSpawner : MonoBehaviour
     {
+        [Header("Spawn Points")]
         [SerializeField] private Transform[] spawnPoints;
+
+        [Header("Selection")]
         [SerializeField] private bool randomizeSpawnPoint = true;
+
+        [Header("Identification")]
+        [SerializeField] private string spawnerId = "Spawner";
 
         private int roundRobinIndex;
 
+        public string SpawnerId => spawnerId;
+
         public void EnsureSpawnPoints()
         {
-            if (spawnPoints == null || spawnPoints.Length == 0) spawnPoints = new[] { transform };
+            if (spawnPoints == null || spawnPoints.Length == 0)
+            {
+                spawnPoints = new[] { transform };
+            }
         }
 
-        private void OnValidate() => EnsureSpawnPoints();
+        private void OnValidate()
+        {
+            EnsureSpawnPoints();
+        }
 
         public GameObject Spawn(in WaveTimelineEvent e, in WaveScalingContext scalingContext)
         {
             if (e == null || e.Prefab == null) return null;
             EnsureSpawnPoints();
 
-            Transform point = PickSpawnPoint(e.IsBoss);
+            var point = PickSpawnPoint(e.IsBoss);
+            if (point == null) point = transform;
 
             var instance = PoolRegistry.Instance != null ? PoolRegistry.Instance.Spawn(e.Prefab) : Instantiate(e.Prefab);
             if (instance == null) return null;
 
             instance.transform.SetPositionAndRotation(point.position, point.rotation);
 
-            var ctx = instance.GetComponent<WaveSpawnContext>();
-            if (ctx == null) ctx = instance.AddComponent<WaveSpawnContext>();
-            ctx.Configure(e.WaveIndex, e.IsBoss, e.Prefab);
+            var context = instance.GetComponent<WaveSpawnContext>();
+            if (context == null) context = instance.AddComponent<WaveSpawnContext>();
+            context.Configure(e.WaveIndex, e.IsBoss, e.Prefab);
 
-            var scalables = instance.GetComponentsInChildren<IWaveScalable>(true);
-            for (int i = 0; i < scalables.Length; i++) scalables[i].ApplyWaveScaling(scalingContext);
+            ApplyScaling(instance, scalingContext);
 
             return instance;
         }
@@ -41,12 +56,26 @@ namespace TappyTale.WaveDirector.Runtime
         private Transform PickSpawnPoint(bool isBoss)
         {
             if (spawnPoints == null || spawnPoints.Length == 0) return transform;
+
             if (isBoss) return spawnPoints[0];
 
-            if (randomizeSpawnPoint) return spawnPoints[Random.Range(0, spawnPoints.Length)];
+            if (randomizeSpawnPoint)
+            {
+                int index = Random.Range(0, spawnPoints.Length);
+                return spawnPoints[index];
+            }
 
             roundRobinIndex = (roundRobinIndex + 1) % spawnPoints.Length;
             return spawnPoints[roundRobinIndex];
+        }
+
+        private static void ApplyScaling(GameObject instance, in WaveScalingContext context)
+        {
+            var scalables = instance.GetComponentsInChildren<IWaveScalable>(true);
+            for (int i = 0; i < scalables.Length; i++)
+            {
+                scalables[i].ApplyWaveScaling(context);
+            }
         }
     }
 
@@ -57,6 +86,7 @@ namespace TappyTale.WaveDirector.Runtime
         [field: SerializeField] public string EnemyId { get; private set; }
 
         private GameObject prefab;
+
         public GameObject Prefab => prefab;
 
         public void Configure(int waveIndex, bool isBoss, GameObject prefab)

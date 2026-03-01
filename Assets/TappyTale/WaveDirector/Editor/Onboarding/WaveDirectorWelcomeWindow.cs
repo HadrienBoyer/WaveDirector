@@ -1,260 +1,274 @@
-// File: Assets/TappyTale/WaveDirector/Editor/Onboarding/WaveDirectorWelcomeWindow.cs
 #if UNITY_EDITOR
 using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TappyTale.WaveDirector.Editor
 {
     public sealed class WaveDirectorWelcomeWindow : EditorWindow
     {
-        private const string Version = "1.0.2";
+        private const string Version = "1.1.0";
         private const string PrefKey = "TT_WaveDirector_WelcomeShown_";
 
-        private Vector2 scroll;
-        private bool createScene = true;
-        private bool overwriteExisting = false;
-
         [MenuItem("TappyTale/Waves/Wave Director Welcome", priority = 0)]
-        public static void ShowFromMenu()
-        {
-            ShowWindow(focus: true);
-        }
+        public static void OpenFromMenu() => ShowWindow(true);
 
         internal static void ShowWindow(bool focus)
         {
             var w = GetWindow<WaveDirectorWelcomeWindow>(utility: true, title: "Wave Director");
-            w.minSize = new Vector2(560, 520);
+            w.minSize = new Vector2(760, 680);
             if (focus) w.Focus();
             w.Show();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
         {
-            DrawHeader();
+            var root = rootVisualElement;
+            root.style.paddingLeft = 12;
+            root.style.paddingRight = 12;
+            root.style.paddingTop = 12;
+            root.style.paddingBottom = 12;
 
-            scroll = EditorGUILayout.BeginScrollView(scroll);
-
-            DrawIntro();
-            EditorGUILayout.Space(12);
-            DrawQuickStart();
-            EditorGUILayout.Space(12);
-            DrawDemoSection();
-            EditorGUILayout.Space(12);
-            DrawLinks();
-
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.Space(6);
-            DrawFooter();
+            root.Add(BuildHeader());
+            root.Add(BuildScroll());
+            root.Add(BuildFooter());
         }
 
-        private void DrawHeader()
+        private VisualElement BuildHeader()
         {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.justifyContent = Justify.SpaceBetween;
+            header.style.alignItems = Align.Center;
+            header.style.marginBottom = 10;
+
+            var left = new VisualElement();
+            left.style.flexDirection = FlexDirection.Column;
+
+            var title = new Label("Wave Director - Enemy AI and Boss Rush Wave Spawner Tools");
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            title.style.fontSize = 16;
+
+            var sub = new Label($"Version {Version} • Author: Tappy Tale • Docs name: Wave Editor");
+            sub.style.opacity = 0.75f;
+
+            left.Add(title);
+            left.Add(sub);
+
+            var right = new VisualElement();
+            right.style.flexDirection = FlexDirection.Row;
+            var openTimelineButton = MakeButton("Open Timeline Editor", () =>
             {
-                var titleStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 16 };
-                EditorGUILayout.LabelField("Wave Director - Enemy AI and Boss Rush Wave Spawner Tools", titleStyle);
-                EditorGUILayout.LabelField($"Version {Version}", EditorStyles.miniLabel);
-            }
-        }
-
-        private void DrawIntro()
-        {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("Welcome!", EditorStyles.boldLabel);
-
-                EditorGUILayout.LabelField(
-                    "Wave Director is a designer-friendly wave authoring and runtime system:\n" +
-                    "• Author waves visually with a timeline\n" +
-                    "• Spawn via one or many spawners (round-robin or broadcast)\n" +
-                    "• End waves by timer, kill-count, or objectives\n" +
-                    "• Optional adaptive difficulty + local save/analytics\n\n" +
-                    "Use this window to generate a tiny demo setup (ScriptableObjects + optional scene). " +
-                    "You’ll be able to press Play immediately and see spawns.",
-                    EditorStyles.wordWrappedLabel
-                );
-            }
-        }
-
-        private void DrawQuickStart()
-        {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("On-boarding (2 minutes)", EditorStyles.boldLabel);
-
-                EditorGUILayout.LabelField(
-                    "1) Create a WaveTimelineConfig\n" +
-                    "   Project → Create → TappyTale → Waves → Wave Timeline Config\n" +
-                    "2) (Recommended) Create a WaveDirectorConfig\n" +
-                    "   Project → Create → TappyTale → Waves → Wave Director Config\n" +
-                    "3) Add to a scene: WaveDirector + 1+ WaveSpawner\n" +
-                    "4) Open: TappyTale → Waves → Wave Timeline Editor\n" +
-                    "5) Drag prefabs onto the timeline lanes, then press Play",
-                    EditorStyles.wordWrappedLabel
-                );
-
-                EditorGUILayout.Space(6);
-
-                using (new EditorGUILayout.HorizontalScope())
+                var t = WaveDirectorTypeUtil.FindTypeByName("WaveTimelineEditorWindow");
+                if (t == null)
                 {
-                    if (GUILayout.Button("Open Wave Timeline Editor", GUILayout.Height(28)))
-                        OpenTimelineEditorWindow();
-
-                    if (GUILayout.Button("Open Install README", GUILayout.Height(28)))
-                        SelectReadme("README_INSTALL.md");
+                    EditorUtility.DisplayDialog("Wave Director", "WaveTimelineEditorWindow not found.", "OK");
+                    return;
                 }
-            }
+                EditorWindow.GetWindow(t);
+            });
+            openTimelineButton.style.marginRight = 8;
+            right.Add(openTimelineButton);
+
+            right.Add(MakeButton("Open Install README", () => SelectReadme("README_INSTALL.md")));
+
+            header.Add(left);
+            header.Add(right);
+            return header;
         }
 
-        private void DrawDemoSection()
+        private VisualElement BuildScroll()
         {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            var scroll = new ScrollView();
+            scroll.style.flexGrow = 1;
+
+            scroll.Add(Card("Welcome",
+                "Wave Director lets designers build waves on a timeline (spawn prefab at time T on lane waveIndex). " +
+                "Runtime plays waves with completion triggers (Timer / KillCount / Objective), optional Adaptive difficulty, pooling, and save/analytics."));
+
+            scroll.Add(Card("Quick start",
+                "1) Create WaveTimelineConfig\n" +
+                "2) Optional: WaveDirectorConfig\n" +
+                "3) Scene: WaveDirector + 1+ WaveSpawner(s) + PoolRegistry\n" +
+                "4) Open: TappyTale → Waves → Wave Timeline Editor\n" +
+                "5) Drag prefabs into lanes, press Play"));
+
+            bool hasSurface = WaveDirectorTypeUtil.FindTypeByFullName("Unity.AI.Navigation.NavMeshSurface") != null;
+            scroll.Add(Card("Environment checks",
+                $"AI Navigation NavMeshSurface: {(hasSurface ? "Detected" : "Not detected")}\n" +
+                "Sample uses NavMeshAgent; if NavMeshSurface exists, we bake automatically."));
+
+            var demo = CardContainer("Generate demo assets");
+            var demoDescription = new Label("Creates demo configs + prefabs, and optionally a demo scene.");
+            demoDescription.style.whiteSpace = WhiteSpace.Normal;
+            demoDescription.style.marginTop = 4;
+            demo.Add(demoDescription);
+
+            var demoCreateScene = new Toggle("Also generate a demo scene") { value = true };
+            var demoOverwrite = new Toggle("Overwrite existing generated assets") { value = false };
+            demo.Add(demoCreateScene);
+            demo.Add(demoOverwrite);
+
+            var demoRow = new VisualElement();
+            demoRow.style.flexDirection = FlexDirection.Row;
+            demoRow.style.marginTop = 6;
+
+            var createDemoAssetsButton = MakeButton("Create Demo Assets", () =>
             {
-                EditorGUILayout.LabelField("Generate Sample Demo Assets", EditorStyles.boldLabel);
-
-                EditorGUILayout.LabelField(
-                    "This creates:\n" +
-                    "• A sample WaveTimelineConfig (3 waves)\n" +
-                    "• A sample WaveDirectorConfig\n" +
-                    "• Two primitive prefabs (Enemy + Boss) for timeline events\n" +
-                    (createScene ? "• A ready-to-play demo scene (optional)\n" : string.Empty) +
-                    "\nAll assets are generated inside:\nAssets/TappyTale/WaveDirector/Demo/Generated/",
-                    EditorStyles.wordWrappedLabel
-                );
-
-                EditorGUILayout.Space(8);
-
-                createScene = EditorGUILayout.ToggleLeft("Also generate a demo scene", createScene);
-                overwriteExisting = EditorGUILayout.ToggleLeft("Overwrite existing generated assets", overwriteExisting);
-
-                EditorGUILayout.Space(8);
-
-                using (new EditorGUILayout.HorizontalScope())
+                try
                 {
-                    GUI.enabled = !EditorApplication.isCompiling;
-
-                    if (GUILayout.Button("Create Demo Assets", GUILayout.Height(32)))
+                    var result = WaveDirectorDemoAssetGenerator.CreateDemoAssets(demoOverwrite.value, demoCreateScene.value);
+                    if (result.MainAssetToSelect != null)
                     {
-                        try
-                        {
-                            var result = WaveDirectorDemoAssetGenerator.CreateDemoAssets(
-                                overwriteExisting: overwriteExisting,
-                                createDemoScene: createScene);
-
-                            EditorPrefs.SetBool(PrefKey + Version, true);
-
-                            if (result.MainAssetToSelect != null)
-                            {
-                                Selection.activeObject = result.MainAssetToSelect;
-                                EditorGUIUtility.PingObject(result.MainAssetToSelect);
-                            }
-
-                            EditorUtility.DisplayDialog(
-                                "Wave Director",
-                                $"Done!\n\nGenerated assets:\n{result.Summary}",
-                                "Nice");
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogException(ex);
-                            EditorUtility.DisplayDialog("Wave Director", $"Failed to generate demo assets:\n{ex.Message}", "OK");
-                        }
+                        Selection.activeObject = result.MainAssetToSelect;
+                        EditorGUIUtility.PingObject(result.MainAssetToSelect);
                     }
-
-                    GUI.enabled = true;
-
-                    if (GUILayout.Button("Locate Generated Folder", GUILayout.Height(32)))
-                        WaveDirectorDemoAssetGenerator.RevealGeneratedFolderInProject();
-                }
-
-                if (EditorApplication.isCompiling)
-                {
-                    EditorGUILayout.HelpBox("Unity is compiling scripts. Demo generation is disabled until compilation finishes.", MessageType.Info);
-                }
-            }
-        }
-
-        private void DrawLinks()
-        {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("Next steps", EditorStyles.boldLabel);
-
-                EditorGUILayout.LabelField(
-                    "• Read: Wave Designer mental model and balancing knobs\n" +
-                    "• Read: Timeline Editor controls and workflow\n" +
-                    "• Read: Runtime API and extension points\n",
-                    EditorStyles.wordWrappedLabel
-                );
-
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button("Open Wave Designer README", GUILayout.Height(28)))
-                        SelectReadme("README_WAVE_DESIGNER.md");
-
-                    if (GUILayout.Button("Open Timeline Editor README", GUILayout.Height(28)))
-                        SelectReadme("README_TIMELINE_EDITOR.md");
-                }
-
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button("Open Runtime API README", GUILayout.Height(28)))
-                        SelectReadme("README_RUNTIME_API.md");
-
-                    if (GUILayout.Button("Open Extending README", GUILayout.Height(28)))
-                        SelectReadme("README_EXTENDING.md");
-                }
-            }
-        }
-
-        private void DrawFooter()
-        {
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.FlexibleSpace();
-
-                bool dontShowAgain = EditorPrefs.GetBool(PrefKey + Version, false);
-                bool newDontShowAgain = GUILayout.Toggle(dontShowAgain, "Don’t show this again", GUILayout.Width(170));
-                if (newDontShowAgain != dontShowAgain)
-                    EditorPrefs.SetBool(PrefKey + Version, newDontShowAgain);
-
-                if (GUILayout.Button("Close", GUILayout.Width(90)))
-                {
                     EditorPrefs.SetBool(PrefKey + Version, true);
-                    Close();
+                    EditorUtility.DisplayDialog("Wave Director", "Done!\n\n" + result.Summary, "OK");
                 }
-            }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                    EditorUtility.DisplayDialog("Wave Director", "Failed:\n" + ex.Message, "OK");
+                }
+            });
+            createDemoAssetsButton.style.marginRight = 8;
+            demoRow.Add(createDemoAssetsButton);
+
+            demoRow.Add(MakeButton("Locate Demo Folder", WaveDirectorDemoAssetGenerator.RevealGeneratedFolderInProject));
+            demo.Add(demoRow);
+            scroll.Add(demo);
+
+            var sample = CardContainer("Install sample: Simple Boss Fight");
+            var sampleDescription = new Label(
+                "Generates a plug-and-play mini-game into:\n" +
+                "Assets/TappyTale/WaveDirector/Samples/Simple Boss Fight/\n\n" +
+                "Includes: scene, prefabs, configs, and scripts.");
+            sampleDescription.style.whiteSpace = WhiteSpace.Normal;
+            sampleDescription.style.marginTop = 4;
+            sample.Add(sampleDescription);
+
+            var sampleRow = new VisualElement();
+            sampleRow.style.flexDirection = FlexDirection.Row;
+            sampleRow.style.marginTop = 6;
+
+            var generateSampleButton = MakeButton("Generate / Reinstall Sample", () =>
+            {
+                try
+                {
+                    var res = SimpleBossFightSampleGenerator.GenerateOrUpdate(overwrite: true);
+                    if (res.MainAssetToSelect != null)
+                    {
+                        Selection.activeObject = res.MainAssetToSelect;
+                        EditorGUIUtility.PingObject(res.MainAssetToSelect);
+                    }
+                    EditorUtility.DisplayDialog("Wave Director", "Sample generated!\n\n" + res.Summary, "OK");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                    EditorUtility.DisplayDialog("Wave Director", "Sample generation failed:\n" + ex.Message, "OK");
+                }
+            });
+            generateSampleButton.style.marginRight = 8;
+            sampleRow.Add(generateSampleButton);
+
+            sampleRow.Add(MakeButton("Open Sample Folder", () =>
+            {
+                var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(SimpleBossFightSampleGenerator.RootFolder);
+                if (obj != null) { Selection.activeObject = obj; EditorGUIUtility.PingObject(obj); }
+            }));
+
+            sample.Add(sampleRow);
+            scroll.Add(sample);
+
+            scroll.Add(Card("Docs map",
+                "• README_INSTALL.md\n• README_WAVE_DESIGNER.md\n• README_TIMELINE_EDITOR.md\n• README_RUNTIME_API.md\n• README_EXTENDING.md\n• README_SAVE_ANALYTICS.md\n• README_AI_DIRECTOR.md\n• README_VERSIONING.md + CHANGELOG.md"));
+
+            return scroll;
         }
 
-        private static void OpenTimelineEditorWindow()
+        private VisualElement BuildFooter()
         {
-            // Robust: scan loaded assemblies by type name.
-            var type = WaveDirectorDemoAssetGenerator.FindTypeByName("WaveTimelineEditorWindow", mustBeEditorType: true);
-            if (type == null)
-            {
-                EditorUtility.DisplayDialog("Wave Director", "WaveTimelineEditorWindow type not found. Make sure the editor scripts are imported.", "OK");
-                return;
-            }
+            var footer = new VisualElement();
+            footer.style.flexDirection = FlexDirection.Row;
+            footer.style.justifyContent = Justify.SpaceBetween;
+            footer.style.alignItems = Align.Center;
+            footer.style.marginTop = 10;
 
-            EditorWindow.GetWindow(type);
+            var dontShow = new Toggle("Don’t show this again");
+            dontShow.value = EditorPrefs.GetBool(PrefKey + Version, false);
+            dontShow.RegisterValueChangedCallback(evt => EditorPrefs.SetBool(PrefKey + Version, evt.newValue));
+
+            var close = MakeButton("Close", () =>
+            {
+                EditorPrefs.SetBool(PrefKey + Version, true);
+                Close();
+            });
+
+            footer.Add(dontShow);
+            footer.Add(close);
+            return footer;
+        }
+
+        private static Button MakeButton(string text, Action onClick)
+        {
+            var b = new Button(onClick) { text = text };
+            b.style.height = 28;
+            b.style.paddingLeft = 12;
+            b.style.paddingRight = 12;
+            return b;
+        }
+
+        private static VisualElement Card(string title, string body)
+        {
+            var card = CardContainer(title);
+            var label = new Label(body);
+            label.style.whiteSpace = WhiteSpace.Normal;
+            label.style.marginTop = 4;
+            card.Add(label);
+            return card;
+        }
+
+        private static VisualElement CardContainer(string title)
+        {
+            var box = new VisualElement();
+            box.style.borderTopWidth = 1;
+            box.style.borderBottomWidth = 1;
+            box.style.borderLeftWidth = 1;
+            box.style.borderRightWidth = 1;
+            box.style.borderTopColor = new Color(0, 0, 0, 0.25f);
+            box.style.borderBottomColor = new Color(0, 0, 0, 0.25f);
+            box.style.borderLeftColor = new Color(0, 0, 0, 0.25f);
+            box.style.borderRightColor = new Color(0, 0, 0, 0.25f);
+            box.style.borderTopLeftRadius = 6;
+            box.style.borderTopRightRadius = 6;
+            box.style.borderBottomLeftRadius = 6;
+            box.style.borderBottomRightRadius = 6;
+            box.style.paddingLeft = 12;
+            box.style.paddingRight = 12;
+            box.style.paddingTop = 10;
+            box.style.paddingBottom = 10;
+            box.style.marginBottom = 10;
+
+            var h = new Label(title);
+            h.style.unityFontStyleAndWeight = FontStyle.Bold;
+            h.style.fontSize = 13;
+            box.Add(h);
+
+            return box;
         }
 
         private static void SelectReadme(string filename)
         {
-            // AssetDatabase.FindAssets expects a search filter (keywords), not a full filename.
-            // We search by base name, then verify the extension/path ends with the expected filename.
             string needle = Path.GetFileNameWithoutExtension(filename);
 
-            // Unity defaults to searching both Assets and Packages when no folders are specified,
-            // but we do a 2-pass search to be extra robust across versions.
             if (TrySelectBySearch(needle, filename, new[] { "Assets" })) return;
             if (TrySelectBySearch(needle, filename, new[] { "Packages" })) return;
             if (TrySelectBySearch(needle, filename, null)) return;
 
-            // Fallback: try a few common fixed locations.
             var commonPaths = new[]
             {
                 $"Assets/TappyTale/WaveDirector/Documentation/{filename}",
@@ -273,9 +287,9 @@ namespace TappyTale.WaveDirector.Editor
 
             EditorUtility.DisplayDialog(
                 "Wave Director",
-                $"Could not find {filename} in the project.\n\n" +
-                "If you installed WaveDirector as a UPM package, check the Project window's 'Packages' view.\n" +
-                "Otherwise, import the Documentation folder into Assets (recommended: Assets/TappyTale/WaveDirector/Documentation/).",
+                $"Could not find {filename}.\n\n" +
+                "If installed as a UPM package, check the Project window's 'Packages' view.\n" +
+                "Otherwise, import Documentation into Assets/TappyTale/WaveDirector/Documentation/.",
                 "OK");
         }
 
@@ -301,7 +315,6 @@ namespace TappyTale.WaveDirector.Editor
 
             return false;
         }
-
     }
 }
 #endif

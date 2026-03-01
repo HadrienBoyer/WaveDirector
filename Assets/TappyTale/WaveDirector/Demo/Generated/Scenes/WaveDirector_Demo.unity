@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &515334592
+--- !u!1 &39150023
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,54 +127,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 515334594}
-  - component: {fileID: 515334593}
-  m_Layer: 0
-  m_Name: PoolRegistry
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &515334593
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515334592}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1831453087}
-  m_Name: 
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.PoolRegistry
-  poolRoot: {fileID: 0}
-  defaultPrewarmCount: 8
---- !u!4 &515334594
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515334592}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1170898117
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1170898119}
-  - component: {fileID: 1170898118}
+  - component: {fileID: 39150025}
+  - component: {fileID: 39150024}
   m_Layer: 0
   m_Name: Spawner_B
   m_TagString: Untagged
@@ -182,28 +136,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1170898118
+--- !u!114 &39150024
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170898117}
+  m_GameObject: {fileID: 39150023}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e6207fbdd7ab74da488646bb9a1b7d13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveSpawner
   spawnPoints:
-  - {fileID: 1170898119}
+  - {fileID: 39150025}
   randomizeSpawnPoint: 1
---- !u!4 &1170898119
+--- !u!4 &39150025
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170898117}
+  m_GameObject: {fileID: 39150023}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3, y: 0, z: 0}
@@ -212,7 +166,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1456767398
+--- !u!1 &374129487
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -220,61 +174,36 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1456767401}
-  - component: {fileID: 1456767400}
-  - component: {fileID: 1456767399}
+  - component: {fileID: 374129489}
+  - component: {fileID: 374129488}
   m_Layer: 0
-  m_Name: WaveSystem
+  m_Name: PoolRegistry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1456767399
+--- !u!114 &374129488
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456767398}
+  m_GameObject: {fileID: 374129487}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d212c2f3f7734a6eab52fdcedd7a47a, type: 3}
+  m_Script: {fileID: 1997249887}
   m_Name: 
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.BasicPlayerPerformanceProvider
-  damageTakenThisWave: 0
-  deathsThisWave: 0
---- !u!114 &1456767400
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456767398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a97d7273b4a9249b28cd901d3ab3e64e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveDirector
-  timelineConfig: {fileID: 0}
-  directorConfig: {fileID: 0}
-  spawners: []
-  spawnBroadcastMode: 0
-  objectiveTracker: {fileID: 0}
-  playerPerformanceProviderBehaviour: {fileID: 1456767399}
-  rewardHandlerBehaviour: {fileID: 0}
-  enableSave: 1
-  enableAnalytics: 1
-  currentWaveIndex: 0
-  currentDifficulty: 1
-  killsThisWave: 0
---- !u!4 &1456767401
+  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.PoolRegistry
+  poolRoot: {fileID: 0}
+  defaultPrewarmCount: 8
+--- !u!4 &374129489
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456767398}
+  m_GameObject: {fileID: 374129487}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -283,7 +212,125 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!115 &1831453087
+--- !u!1 &593896045
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 593896047}
+  - component: {fileID: 593896046}
+  m_Layer: 0
+  m_Name: Spawner_A
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &593896046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593896045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6207fbdd7ab74da488646bb9a1b7d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveSpawner
+  spawnPoints:
+  - {fileID: 593896047}
+  randomizeSpawnPoint: 1
+--- !u!4 &593896047
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593896045}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1405148149
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1405148152}
+  - component: {fileID: 1405148151}
+  - component: {fileID: 1405148150}
+  m_Layer: 0
+  m_Name: WaveSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1405148150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405148149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 2013943223}
+  m_Name: 
+  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.BasicPlayerPerformanceProvider
+  damageTakenThisWave: 0
+  deathsThisWave: 0
+--- !u!114 &1405148151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405148149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a97d7273b4a9249b28cd901d3ab3e64e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveDirector
+  timelineConfig: {fileID: 11400000, guid: d7b960d72960f40f09e23b12e0a4d8ac, type: 2}
+  directorConfig: {fileID: 11400000, guid: 8fe238034c0ab4c22abed803454a33e2, type: 2}
+  spawners: []
+  spawnBroadcastMode: 0
+  objectiveTracker: {fileID: 0}
+  playerPerformanceProviderBehaviour: {fileID: 1405148150}
+  rewardHandlerBehaviour: {fileID: 0}
+  enableSave: 1
+  enableAnalytics: 1
+  currentWaveIndex: 0
+  currentDifficulty: 1
+  killsThisWave: 0
+--- !u!4 &1405148152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1405148149}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!115 &1997249887
 MonoScript:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -298,58 +345,26 @@ MonoScript:
   m_ClassName: PoolRegistry
   m_Namespace: TappyTale.WaveDirector.Runtime
   m_AssemblyName: TappyTale.WaveDirector.Runtime
---- !u!1 &1942509438
-GameObject:
+--- !u!115 &2013943223
+MonoScript:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1942509440}
-  - component: {fileID: 1942509439}
-  m_Layer: 0
-  m_Name: Spawner_A
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1942509439
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1942509438}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6207fbdd7ab74da488646bb9a1b7d13, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveSpawner
-  spawnPoints:
-  - {fileID: 1942509440}
-  randomizeSpawnPoint: 1
---- !u!4 &1942509440
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1942509438}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: BasicPlayerPerformanceProvider
+  m_Namespace: TappyTale.WaveDirector.Runtime
+  m_AssemblyName: TappyTale.WaveDirector.Runtime
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1456767401}
-  - {fileID: 1942509440}
-  - {fileID: 1170898119}
-  - {fileID: 515334594}
+  - {fileID: 1405148152}
+  - {fileID: 593896047}
+  - {fileID: 39150025}
+  - {fileID: 374129489}

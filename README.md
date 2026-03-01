@@ -1,4 +1,4 @@
-![Wave Director Logo](docs/wave-director-logo.svg)
+![Wave Director Logo](docs/wave-director-logo.png)
 
 # Wave Director - Enemy AI and Boss Rush Wave Spawner Tools
 

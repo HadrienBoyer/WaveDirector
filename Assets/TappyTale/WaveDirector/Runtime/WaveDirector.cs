@@ -3,9 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
-    public enum SpawnBroadcastMode { RoundRobin = 0, SpawnOnAllSpawners = 1 }
+    public enum SpawnBroadcastMode
+    {
+        RoundRobin = 0,
+        SpawnOnAllSpawners = 1
+    }
 
     [DisallowMultipleComponent]
     public sealed class WaveDirector : MonoBehaviour
@@ -18,14 +22,10 @@ namespace TappyTale.WaveDirector.Runtime
         [SerializeField] private List<WaveSpawner> spawners = new List<WaveSpawner>();
         [SerializeField] private SpawnBroadcastMode spawnBroadcastMode = SpawnBroadcastMode.RoundRobin;
 
-        [Header("Objective Trigger (Optional)")]
-        [SerializeField] private WaveObjectiveTracker objectiveTracker;
-
-        [Header("Adaptive Input (Optional)")]
+        [Header("Optional Hooks")]
         [SerializeField] private MonoBehaviour playerPerformanceProviderBehaviour;
-
-        [Header("Rewards (Optional)")]
         [SerializeField] private MonoBehaviour rewardHandlerBehaviour;
+        [SerializeField] private WaveObjectiveTracker objectiveTracker;
 
         [Header("Save & Analytics")]
         [SerializeField] private bool enableSave = true;
@@ -35,6 +35,7 @@ namespace TappyTale.WaveDirector.Runtime
         [SerializeField] private int currentWaveIndex;
         [SerializeField] private float currentDifficulty = 1f;
         [SerializeField] private int killsThisWave;
+        [SerializeField] private float waveStartTime;
 
         public event Action<int> WaveStarted;
         public event Action<int> WaveCompleted;
@@ -46,15 +47,16 @@ namespace TappyTale.WaveDirector.Runtime
         private string savePath;
         private string analyticsPath;
 
+        private int spawnerRoundRobin;
         private float adaptiveDifficulty;
+
         private bool isRunning;
         private Coroutine runRoutine;
 
-        private int spawnerRoundRobin;
-        private float waveStartTime;
-
-        private int dataTotalKills;
-        private float dataTotalTime;
+        public WaveTimelineConfig TimelineConfig => timelineConfig;
+        public WaveDirectorConfig DirectorConfig => directorConfig;
+        public int CurrentWaveIndex => currentWaveIndex;
+        public float CurrentDifficulty => currentDifficulty;
 
         private void Awake()
         {
@@ -65,15 +67,22 @@ namespace TappyTale.WaveDirector.Runtime
 
             EnsurePoolRegistry();
 
-            timelineGuid = timelineConfig != null ? timelineConfig.TimelineGuid : "NoTimeline";
+            timelineGuid = TimelineGuidUtility.GetOrCreateGuid(timelineConfig);
             savePath = WaveSaveSystem.GetSavePath(timelineConfig != null ? timelineConfig.name : "Timeline", timelineGuid);
             analyticsPath = WaveAnalyticsLogger.GetAnalyticsPath(timelineConfig != null ? timelineConfig.name : "Timeline", timelineGuid);
 
             adaptiveDifficulty = directorConfig != null ? directorConfig.BaseDifficulty : 1f;
         }
 
-        private void OnEnable() => WaveKillBus.Killed += OnKilled;
-        private void OnDisable() => WaveKillBus.Killed -= OnKilled;
+        private void OnEnable()
+        {
+            WaveKillBus.Killed += OnKilled;
+        }
+
+        private void OnDisable()
+        {
+            WaveKillBus.Killed -= OnKilled;
+        }
 
         private void Start()
         {
@@ -83,7 +92,13 @@ namespace TappyTale.WaveDirector.Runtime
                 return;
             }
 
+            if (directorConfig == null)
+            {
+                Debug.LogWarning("[WaveDirector] Missing DirectorConfig, using defaults.");
+            }
+
             if (enableSave) TryLoadProgress();
+
             StartRunning();
         }
 
@@ -102,6 +117,19 @@ namespace TappyTale.WaveDirector.Runtime
             runRoutine = null;
         }
 
+        public void RegisterSpawner(WaveSpawner spawner)
+        {
+            if (spawner == null) return;
+            if (spawners.Contains(spawner)) return;
+            spawners.Add(spawner);
+        }
+
+        public void UnregisterSpawner(WaveSpawner spawner)
+        {
+            if (spawner == null) return;
+            spawners.Remove(spawner);
+        }
+
         public void StartPreviewWave(int waveIndex)
         {
             if (!Application.isPlaying) return;
@@ -113,49 +141,58 @@ namespace TappyTale.WaveDirector.Runtime
 
         private IEnumerator RunWaves()
         {
-            currentWaveIndex = Mathf.Clamp(currentWaveIndex, 0, timelineConfig.WaveCount);
+            currentWaveIndex = Mathf.Clamp(currentWaveIndex, 0, timelineConfig.WaveCount - 1);
 
             while (isRunning && currentWaveIndex < timelineConfig.WaveCount)
             {
-                int wave = currentWaveIndex;
-                yield return RunWave(wave);
-                currentWaveIndex = wave + 1;
+                yield return RunWave(currentWaveIndex);
+                currentWaveIndex++;
             }
         }
 
-        private IEnumerator RunSingleWavePreview(int waveIndex) => RunWave(waveIndex);
+        private IEnumerator RunSingleWavePreview(int waveIndex)
+        {
+            yield return RunWave(waveIndex);
+        }
 
         private IEnumerator RunWave(int waveIndex)
         {
             if (timelineConfig == null) yield break;
 
-            var waveDef = (timelineConfig.Waves != null && waveIndex < timelineConfig.Waves.Count)
+            var waveDef = timelineConfig.Waves != null && waveIndex < timelineConfig.Waves.Count
                 ? timelineConfig.Waves[waveIndex]
                 : WaveDefinition.CreateDefault(waveIndex);
 
             killsThisWave = 0;
             waveStartTime = Time.time;
 
-            if (playerPerformanceProviderBehaviour is BasicPlayerPerformanceProvider perf) perf.ResetWave();
-
             currentDifficulty = ComputeDifficultyForWave(waveIndex);
 
             WaveStarted?.Invoke(waveIndex);
 
-            yield return SpawnWaveEventsAsync(waveIndex, waveDef);
-            yield return WaitForWaveCompletion(waveDef);
+            // Spawn events for this wave.
+            yield return StartCoroutine(SpawnWaveEventsAsync(waveIndex, waveDef));
 
+            // Wait for wave completion condition.
+            yield return StartCoroutine(WaitForWaveCompletion(waveIndex, waveDef));
+
+            // Wrap up.
             float clearTime = Mathf.Max(0.01f, Time.time - waveStartTime);
 
             ApplyAdaptiveUpdate(clearTime);
 
-            rewardHandler?.OnWaveCompleted(waveIndex, waveDef.RewardScale * currentDifficulty);
+            if (rewardHandler != null)
+            {
+                float rewardScale = waveDef.RewardScale * currentDifficulty;
+                rewardHandler.OnWaveCompleted(waveIndex, rewardScale);
+            }
+
             WaveCompleted?.Invoke(waveIndex);
 
             if (enableAnalytics)
             {
                 var snapshot = playerPerformanceProvider != null ? playerPerformanceProvider.GetSnapshot() : new PlayerPerformanceSnapshot(0f, 0);
-                WaveAnalyticsLogger.Append(analyticsPath, new WaveAnalyticsEntry
+                var entry = new WaveAnalyticsEntry
                 {
                     TimelineGuid = timelineGuid,
                     WaveIndex = waveIndex,
@@ -164,49 +201,46 @@ namespace TappyTale.WaveDirector.Runtime
                     ClearTimeSeconds = clearTime,
                     DamageTaken = snapshot.DamageTakenThisWave,
                     Deaths = snapshot.DeathsThisWave
-                });
+                };
+                WaveAnalyticsLogger.Append(analyticsPath, entry);
             }
 
-            if (enableSave) SaveProgress(waveIndex + 1, clearTime);
+            if (enableSave) SaveProgress();
         }
 
         private IEnumerator SpawnWaveEventsAsync(int waveIndex, WaveDefinition waveDef)
         {
+            if (timelineConfig.Events == null) yield break;
             EnsureSpawners();
 
-            var events = new List<WaveTimelineEvent>(32);
-            if (timelineConfig.Events != null)
+            var list = GatherEventsForWave(waveIndex);
+            list.Sort((a, b) => a.SpawnTime.CompareTo(b.SpawnTime));
+
+            float waveTimeScale = Mathf.Max(0.01f, waveDef.SpawnTimeScale);
+            float lastTime = 0f;
+
+            for (int i = 0; i < list.Count; i++)
             {
-                for (int i = 0; i < timelineConfig.Events.Count; i++)
-                {
-                    var e = timelineConfig.Events[i];
-                    if (e != null && e.WaveIndex == waveIndex) events.Add(e);
-                }
-            }
+                var e = list[i];
+                if (e == null || e.Prefab == null) continue;
 
-            events.Sort((a, b) => a.SpawnTime.CompareTo(b.SpawnTime));
+                float t = Mathf.Max(0f, e.SpawnTime) * waveTimeScale;
+                float wait = Mathf.Max(0f, t - lastTime);
+                lastTime = t;
 
-            float timeScale = Mathf.Max(0.01f, waveDef.SpawnTimeScale);
-            float last = 0f;
-
-            for (int i = 0; i < events.Count; i++)
-            {
-                var e = events[i];
-                if (e.Prefab == null) continue;
-
-                float t = Mathf.Max(0f, e.SpawnTime) * timeScale;
-                float wait = Mathf.Max(0f, t - last);
-                last = t;
-
+                // "Async" spawning: we yield frames while waiting (coroutine-friendly for mobile).
                 float end = Time.time + wait;
-                while (Time.time < end) yield return null;
+                while (Time.time < end)
+                {
+                    yield return null;
+                }
 
                 SpawnEvent(e, waveDef);
-                yield return null; // pacing
+                yield return null; // small yield to avoid spikes on mobile
             }
         }
 
-        private IEnumerator WaitForWaveCompletion(WaveDefinition waveDef)
+        private IEnumerator WaitForWaveCompletion(int waveIndex, WaveDefinition waveDef)
         {
             switch (waveDef.TriggerType)
             {
@@ -226,12 +260,14 @@ namespace TappyTale.WaveDirector.Runtime
                 {
                     if (objectiveTracker == null)
                     {
+                        Debug.LogWarning("[WaveDirector] Objective trigger used but no WaveObjectiveTracker assigned. Falling back to timer.");
                         float end = Time.time + Mathf.Max(0f, waveDef.TriggerTimeSeconds);
                         while (Time.time < end) yield return null;
                         yield break;
                     }
 
-                    while (!objectiveTracker.IsCompleted(waveDef.TriggerObjectiveId)) yield return null;
+                    string id = waveDef.TriggerObjectiveId;
+                    while (!objectiveTracker.IsCompleted(id)) yield return null;
                     yield break;
                 }
                 default:
@@ -239,8 +275,23 @@ namespace TappyTale.WaveDirector.Runtime
             }
         }
 
+        private List<WaveTimelineEvent> GatherEventsForWave(int waveIndex)
+        {
+            var results = new List<WaveTimelineEvent>(32);
+            for (int i = 0; i < timelineConfig.Events.Count; i++)
+            {
+                var e = timelineConfig.Events[i];
+                if (e == null) continue;
+                if (e.WaveIndex != waveIndex) continue;
+                results.Add(e);
+            }
+            return results;
+        }
+
         private void SpawnEvent(WaveTimelineEvent e, WaveDefinition waveDef)
         {
+            if (e == null || e.Prefab == null) return;
+
             var ctx = new WaveScalingContext(
                 e.WaveIndex,
                 currentDifficulty,
@@ -251,13 +302,21 @@ namespace TappyTale.WaveDirector.Runtime
 
             if (spawnBroadcastMode == SpawnBroadcastMode.SpawnOnAllSpawners)
             {
-                for (int i = 0; i < spawners.Count; i++) spawners[i]?.Spawn(e, ctx);
+                for (int i = 0; i < spawners.Count; i++)
+                {
+                    var s = spawners[i];
+                    if (s == null) continue;
+                    s.Spawn(e, ctx);
+                }
                 return;
             }
 
+            // Round-robin across spawners.
             if (spawners.Count == 0) return;
             spawnerRoundRobin = (spawnerRoundRobin + 1) % spawners.Count;
-            spawners[spawnerRoundRobin]?.Spawn(e, ctx);
+            var spawner = spawners[spawnerRoundRobin];
+            if (spawner == null) return;
+            spawner.Spawn(e, ctx);
         }
 
         private float ComputeDifficultyForWave(int waveIndex)
@@ -296,10 +355,14 @@ namespace TappyTale.WaveDirector.Runtime
             float dmgErr = (cfg.TargetDamageTaken - snapshot.DamageTakenThisWave) / Mathf.Max(1f, cfg.TargetDamageTaken);
             float deathErr = (cfg.TargetDeaths - snapshot.DeathsThisWave) / Mathf.Max(1f, Mathf.Max(1f, cfg.TargetDeaths));
 
+            // Weight deaths heavily (dies => difficulty should drop).
             float score = (0.6f * timeErr) + (0.3f * dmgErr) + (0.9f * deathErr);
+
             float delta = Mathf.Clamp(score * cfg.AdaptiveGain, -cfg.MaxDeltaPerWave, cfg.MaxDeltaPerWave);
 
             float target = adaptiveDifficulty + delta;
+
+            // Smoothly converge toward target.
             adaptiveDifficulty = Mathf.Lerp(target, adaptiveDifficulty, cfg.AdaptiveSmoothing);
             adaptiveDifficulty = Mathf.Clamp(adaptiveDifficulty, cfg.MinDifficulty, cfg.MaxDifficulty);
         }
@@ -312,13 +375,16 @@ namespace TappyTale.WaveDirector.Runtime
 
         private void EnsureSpawners()
         {
+            // Remove nulls + auto-find if empty.
             spawners.RemoveAll(s => s == null);
+
             if (spawners.Count == 0)
             {
                 var found = FindObjectsOfType<WaveSpawner>(true);
                 spawners.AddRange(found);
             }
-            for (int i = 0; i < spawners.Count; i++) spawners[i]?.EnsureSpawnPoints();
+
+            for (int i = 0; i < spawners.Count; i++) if (spawners[i] != null) spawners[i].EnsureSpawnPoints();
         }
 
         private void EnsurePoolRegistry()
@@ -332,27 +398,52 @@ namespace TappyTale.WaveDirector.Runtime
         {
             if (!WaveSaveSystem.TryLoad(savePath, out var data)) return;
             if (data == null) return;
-            if (data.TimelineGuid != timelineGuid) return;
+            if (!string.Equals(data.TimelineGuid, timelineGuid, StringComparison.Ordinal)) return;
 
-            currentWaveIndex = Mathf.Clamp(data.CurrentWaveIndex, 0, timelineConfig.WaveCount);
-            dataTotalKills = Mathf.Max(0, data.TotalKills);
-            dataTotalTime = Mathf.Max(0f, data.TotalTimeSeconds);
+            currentWaveIndex = Mathf.Clamp(data.CurrentWaveIndex, 0, Mathf.Max(0, timelineConfig.WaveCount - 1));
         }
 
-        private void SaveProgress(int nextWaveIndex, float lastWaveClearTimeSeconds)
+        private void SaveProgress()
         {
+            if (timelineConfig == null) return;
+
             var data = new WaveSaveData
             {
                 TimelineGuid = timelineGuid,
-                CurrentWaveIndex = Mathf.Clamp(nextWaveIndex, 0, timelineConfig.WaveCount),
+                CurrentWaveIndex = currentWaveIndex,
                 TotalKills = dataTotalKills + killsThisWave,
-                TotalTimeSeconds = dataTotalTime + Mathf.Max(0f, lastWaveClearTimeSeconds)
+                TotalTimeSeconds = dataTotalTime + (Time.time - waveStartTime)
             };
 
             WaveSaveSystem.Save(savePath, data);
 
+            // Update cached totals for the next save.
             dataTotalKills = data.TotalKills;
             dataTotalTime = data.TotalTimeSeconds;
+        }
+
+        private int dataTotalKills;
+        private float dataTotalTime;
+    }
+
+    public static class TimelineGuidUtility
+    {
+        private const string Prefix = "TappyTale.WaveTimeline.Guid.";
+
+        public static string GetOrCreateGuid(WaveTimelineConfig config)
+        {
+            if (config == null) return "NoConfig";
+
+            string key = Prefix + config.name;
+            if (PlayerPrefs.HasKey(key))
+            {
+                return PlayerPrefs.GetString(key);
+            }
+
+            string guid = System.Guid.NewGuid().ToString("N");
+            PlayerPrefs.SetString(key, guid);
+            PlayerPrefs.Save();
+            return guid;
         }
     }
 }

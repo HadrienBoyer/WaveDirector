@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
-    public interface IPoolable { void OnSpawned(); void OnDespawned(); }
+    public interface IPoolable
+    {
+        void OnSpawned();
+        void OnDespawned();
+    }
 
     public sealed class ObjectPool
     {
@@ -30,7 +34,11 @@ namespace TappyTale.WaveDirector.Runtime
             if (prefab == null) return null;
 
             GameObject go = null;
-            while (pool.Count > 0 && go == null) go = pool.Dequeue();
+            while (pool.Count > 0 && go == null)
+            {
+                go = pool.Dequeue();
+            }
+
             if (go == null) go = Object.Instantiate(prefab, root);
 
             go.transform.SetParent(null, true);
@@ -55,18 +63,23 @@ namespace TappyTale.WaveDirector.Runtime
         }
     }
 
-    [DisallowMultipleComponent]
     public sealed class PoolRegistry : MonoBehaviour
     {
         [SerializeField] private Transform poolRoot;
         [SerializeField, Min(0)] private int defaultPrewarmCount = 8;
 
         private readonly Dictionary<GameObject, ObjectPool> pools = new Dictionary<GameObject, ObjectPool>(64);
+
         public static PoolRegistry Instance { get; private set; }
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
@@ -81,20 +94,40 @@ namespace TappyTale.WaveDirector.Runtime
         public GameObject Spawn(GameObject prefab)
         {
             if (prefab == null) return null;
-            return GetOrCreatePool(prefab).Get();
+            var pool = GetOrCreatePool(prefab);
+            return pool.Get();
         }
 
         public void Despawn(GameObject prefab, GameObject instance)
         {
-            if (prefab == null || instance == null) { if (instance != null) Destroy(instance); return; }
-            if (!pools.TryGetValue(prefab, out var pool)) { Destroy(instance); return; }
+            if (prefab == null || instance == null)
+            {
+                if (instance != null) Destroy(instance);
+                return;
+            }
+
+            if (!pools.TryGetValue(prefab, out var pool))
+            {
+                Destroy(instance);
+                return;
+            }
+
             pool.Release(instance);
         }
 
-        private ObjectPool GetOrCreatePool(GameObject prefab)
+        public void Prewarm(GameObject prefab, int count)
+        {
+            if (prefab == null) return;
+            if (count <= 0) return;
+            GetOrCreatePool(prefab, count);
+        }
+
+        private ObjectPool GetOrCreatePool(GameObject prefab, int overridePrewarm = -1)
         {
             if (pools.TryGetValue(prefab, out var existing)) return existing;
-            var pool = new ObjectPool(prefab, defaultPrewarmCount, poolRoot);
+
+            int prewarm = overridePrewarm >= 0 ? overridePrewarm : defaultPrewarmCount;
+            var pool = new ObjectPool(prefab, prewarm, poolRoot);
             pools.Add(prefab, pool);
             return pool;
         }

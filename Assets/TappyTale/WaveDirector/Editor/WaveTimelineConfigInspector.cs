@@ -1,12 +1,11 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-using TappyTale.WaveDirector.Runtime;
 
-namespace TappyTale.WaveDirector.Editor
+namespace TappyTale
 {
     [CustomEditor(typeof(WaveTimelineConfig))]
-    public sealed class WaveTimelineConfigInspector : UnityEditor.Editor
+    public sealed class WaveTimelineConfigInspector : Editor
     {
         public override void OnInspectorGUI()
         {

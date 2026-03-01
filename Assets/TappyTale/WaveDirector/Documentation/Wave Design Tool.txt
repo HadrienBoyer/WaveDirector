@@ -1,0 +1,15 @@
+Fixed. Everything is now “WaveDirector” (folder + namespaces), while the docs consistently call the tool “Wave Editor”, and the author is “Tappy Tale”.
+
+Asset Store-ready hierarchy:
+- Assets/TappyTale/WaveDirector/Runtime
+- Assets/TappyTale/WaveDirector/Editor
+- Assets/TappyTale/WaveDirector/Documentation
+- Assets/TappyTale/WaveDirector/Demo
+
+Namespaces:
+- TappyTale.WaveDirector.Runtime
+- TappyTale.WaveDirector.Editor
+
+Here’s the complete plug-and-play package zip:
+
+[Download WaveDirector_AssetStore_Package_1.1.0.zip](sandbox:/mnt/data/WaveDirector_AssetStore_Package_1.1.0.zip)
