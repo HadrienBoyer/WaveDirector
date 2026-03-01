@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e16f025532c646ab861538d58685e8c, type: 3}
   m_Name: SBF_DirectorConfig
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveDirectorConfig
-  Mode: 2
+  Mode: 1
   BaseDifficulty: 1
-  MinDifficulty: 0.5
-  MaxDifficulty: 3
+  MinDifficulty: 0.8
+  MaxDifficulty: 1.6
   AggressiveWaveRamp: 0.15
   TargetClearTimeSeconds: 25
   TargetDamageTaken: 15
