@@ -47,9 +47,17 @@ namespace TappyTale.Samples.SimpleBossFight
             pitch = Mathf.Clamp(pitch, -75f, 75f);
 
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-            if (Camera.main != null && Camera.main.GetComponent<SBF_CameraFollow>() == null)
+            if (Camera.main != null)
             {
-                Camera.main.transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+                var follow = Camera.main.GetComponent<SBF_CameraFollow>();
+                if (follow != null && follow.AllowsVerticalOrbit)
+                {
+                    follow.AddVerticalLook(look.y * lookSensitivity);
+                }
+                else
+                {
+                    Camera.main.transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+                }
             }
 
             Vector2 move = ReadMoveInput();
