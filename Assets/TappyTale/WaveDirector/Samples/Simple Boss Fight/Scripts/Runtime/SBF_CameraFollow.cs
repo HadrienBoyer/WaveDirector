@@ -12,8 +12,8 @@ namespace TappyTale.Samples.SimpleBossFight
         [Header("Vertical Orbit")]
         [SerializeField] private bool allowVerticalOrbit = true;
         [SerializeField] private float verticalOrbitSensitivity = 0.2f;
-        [SerializeField] private float minPitch = 30f;
-        [SerializeField] private float maxPitch = 75f;
+        [SerializeField] private float minPitch = 25f;
+        [SerializeField] private float maxPitch = 45f;
 
         public Transform Target { get => target; set => target = value; }
         public bool AllowsVerticalOrbit => allowVerticalOrbit;

@@ -527,6 +527,8 @@ namespace TappyTale.WaveDirector.Editor
                 TrySet(follow, "offset", new Vector3(0f, 8f, -8f));
                 TrySet(follow, "lookAtTarget", true);
                 TrySet(follow, "rotationLerp", 12f);
+                TrySet(follow, "minPitch", 25f);
+                TrySet(follow, "maxPitch", 45f);
                 if (target != null)
                 {
                     cam.transform.position = target.TransformPoint(new Vector3(0f, 8f, -8f));
