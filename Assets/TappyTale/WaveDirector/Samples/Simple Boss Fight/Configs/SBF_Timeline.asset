@@ -58,7 +58,7 @@ MonoBehaviour:
     IsBoss: 0
   - WaveIndex: 2
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 1.6
+    SpawnTime: 3.5
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
@@ -70,7 +70,7 @@ MonoBehaviour:
     IsBoss: 0
   - WaveIndex: 1
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 2.5
+    SpawnTime: 1.5
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
@@ -84,13 +84,13 @@ MonoBehaviour:
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 10.5
     IsBoss: 0
-  - WaveIndex: 0
+  - WaveIndex: 1
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 12
+    SpawnTime: 12.5
     IsBoss: 0
-  - WaveIndex: 0
+  - WaveIndex: 3
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 13.5
+    SpawnTime: 9
     IsBoss: 0
   - WaveIndex: 3
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
@@ -104,11 +104,15 @@ MonoBehaviour:
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 7.75
     IsBoss: 0
-  - WaveIndex: 0
+  - WaveIndex: 1
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 8
+    SpawnTime: 7.9
     IsBoss: 0
   - WaveIndex: 3
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
     SpawnTime: 2.5
+    IsBoss: 0
+  - WaveIndex: 3
+    Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
+    SpawnTime: 11
     IsBoss: 0
