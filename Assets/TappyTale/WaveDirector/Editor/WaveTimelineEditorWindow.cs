@@ -14,6 +14,8 @@ namespace TappyTale
         private const float LeftPadding = 140f;
         private const float TopPadding = 48f;
         private const float LaneHeightMin = 24f;
+        private const float InspectorPanelWidth = 320f;
+        private const float PaneSpacing = 8f;
 
         private WaveTimelineConfig config;
         private Vector2 scroll;
@@ -30,6 +32,19 @@ namespace TappyTale
 
         private static readonly float[] SnapOptions = { 0.01f, 0.05f, 0.10f, 0.25f, 0.50f, 1.00f };
         private static readonly string[] SnapLabels = { "0.01s", "0.05s", "0.10s", "0.25s", "0.50s", "1.00s" };
+        private static readonly GUIContent ReloadButtonContent = new GUIContent("Reload", "Reload the selected timeline asset from disk.");
+        private static readonly GUIContent SaveButtonContent = new GUIContent("Save", "Save timeline changes to the asset file.");
+        private static readonly GUIContent PingButtonContent = new GUIContent("Ping", "Highlight the selected timeline asset in the Project window.");
+        private static readonly GUIContent SnapToggleContent = new GUIContent("Snap", "Enable or disable time snapping while moving/creating events. Hold Shift to bypass temporarily.");
+        private static readonly GUIContent LargeHitboxToggleContent = new GUIContent("Large Hitbox", "Expand click selection area to make event selection easier.");
+        private static readonly GUIContent GuideToggleContent = new GUIContent("Guide", "Show a vertical mouse guide with current time and wave lane.");
+        private static readonly GUIContent PreviewSelectedWaveButtonContent = new GUIContent("Preview Selected Wave", "In Play Mode, start previewing the wave of the selected event.");
+        private static readonly GUIContent FrameSelectedButtonContent = new GUIContent("Frame Selected", "Scroll the timeline to center the selected event.");
+        private static readonly GUIContent ToggleBossButtonContent = new GUIContent("B", "Toggle whether this event is marked as a boss spawn.");
+        private static readonly GUIContent NudgeMinusButtonContent = new GUIContent("- Snap", "Move selected event earlier by one snap step.");
+        private static readonly GUIContent NudgePlusButtonContent = new GUIContent("+ Snap", "Move selected event later by one snap step.");
+        private static readonly GUIContent DuplicateButtonContent = new GUIContent("Duplicate", "Duplicate the selected event.");
+        private static readonly GUIContent DeleteButtonContent = new GUIContent("Delete", "Delete the selected event.");
 
         [MenuItem("TappyTale/Waves/Wave Timeline Editor")]
         public static void OpenMenu()
@@ -62,8 +77,8 @@ namespace TappyTale
                 config.EnsureWaveDefinitions();
 
                 Rect timelineRect = new Rect(0, TopPadding, position.width, position.height - TopPadding);
-                DrawTimeline(timelineRect);
-                HandleDragAndDrop(timelineRect);
+                Rect timelineInteractiveRect = DrawTimeline(timelineRect);
+                HandleDragAndDrop(timelineInteractiveRect);
             }
             finally
             {
@@ -81,7 +96,7 @@ namespace TappyTale
 
                     GUILayout.FlexibleSpace();
 
-                    if (GUILayout.Button("Reload", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                    if (GUILayout.Button(ReloadButtonContent, EditorStyles.toolbarButton, GUILayout.Width(70)))
                     {
                         if (config != null)
                         {
@@ -93,12 +108,12 @@ namespace TappyTale
                         }
                     }
 
-                    if (GUILayout.Button("Save", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                    if (GUILayout.Button(SaveButtonContent, EditorStyles.toolbarButton, GUILayout.Width(70)))
                     {
                         SaveConfig();
                     }
 
-                    if (GUILayout.Button("Ping", EditorStyles.toolbarButton, GUILayout.Width(70)))
+                    if (GUILayout.Button(PingButtonContent, EditorStyles.toolbarButton, GUILayout.Width(70)))
                     {
                         if (config != null) EditorGUIUtility.PingObject(config);
                     }
@@ -122,19 +137,19 @@ namespace TappyTale
                         GUILayout.Label("Zoom", GUILayout.Width(36f));
                         zoomX = EditorGUILayout.Slider(zoomX, 0.5f, 3.0f, GUILayout.Width(180f));
 
-                        snapEnabled = GUILayout.Toggle(snapEnabled, "Snap", EditorStyles.toolbarButton, GUILayout.Width(52f));
+                        snapEnabled = GUILayout.Toggle(snapEnabled, SnapToggleContent, EditorStyles.toolbarButton, GUILayout.Width(52f));
                         snapIndex = EditorGUILayout.Popup(snapIndex, SnapLabels, GUILayout.Width(70f));
                         snapIndex = Mathf.Clamp(snapIndex, 0, SnapOptions.Length - 1);
 
-                        preciseHitTesting = GUILayout.Toggle(preciseHitTesting, "Large Hitbox", EditorStyles.toolbarButton, GUILayout.Width(94f));
-                        showMouseGuide = GUILayout.Toggle(showMouseGuide, "Guide", EditorStyles.toolbarButton, GUILayout.Width(58f));
+                        preciseHitTesting = GUILayout.Toggle(preciseHitTesting, LargeHitboxToggleContent, EditorStyles.toolbarButton, GUILayout.Width(94f));
+                        showMouseGuide = GUILayout.Toggle(showMouseGuide, GuideToggleContent, EditorStyles.toolbarButton, GUILayout.Width(58f));
 
                         GUILayout.FlexibleSpace();
 
                         bool canPreview = EditorApplication.isPlaying;
                         using (new EditorGUI.DisabledScope(!canPreview))
                         {
-                            if (GUILayout.Button("Preview Selected Wave", GUILayout.Width(180)))
+                            if (GUILayout.Button(PreviewSelectedWaveButtonContent, GUILayout.Width(180)))
                             {
                                 if (selectedIndex >= 0 && selectedIndex < config.Events.Count)
                                 {
@@ -150,7 +165,7 @@ namespace TappyTale
 
                         using (new EditorGUI.DisabledScope(selectedIndex < 0 || config.Events == null || selectedIndex >= config.Events.Count))
                         {
-                            if (GUILayout.Button("Frame Selected", GUILayout.Width(120)))
+                            if (GUILayout.Button(FrameSelectedButtonContent, GUILayout.Width(120)))
                             {
                                 FrameSelectedEvent();
                             }
@@ -160,24 +175,31 @@ namespace TappyTale
             }
         }
 
-        private void DrawTimeline(Rect rect)
+        private Rect DrawTimeline(Rect rect)
         {
+            float inspectorWidth = Mathf.Min(InspectorPanelWidth, Mathf.Max(220f, rect.width * 0.42f));
+            float timelineWidthVisible = Mathf.Max(220f, rect.width - inspectorWidth - PaneSpacing);
+            Rect timelineViewRect = new Rect(rect.x, rect.y, timelineWidthVisible, rect.height);
+            Rect inspectorRect = new Rect(timelineViewRect.xMax + PaneSpacing, rect.y, inspectorWidth, rect.height);
+
             float laneHeight = Mathf.Max(LaneHeightMin, TimelineHeight / Mathf.Max(1, config.WaveCount));
+            float waveAreaHeight = Mathf.Max(TimelineHeight, laneHeight * Mathf.Max(1, config.WaveCount));
             float timelineWidth = ComputeTimelineWidthSeconds() / TimePerUnit * UnitWidthPx + LeftPadding + 200f;
-            Rect contentRect = new Rect(0, 0, timelineWidth, TimelineHeight + 60f);
+            Rect contentRect = new Rect(0, 0, timelineWidth, waveAreaHeight + 60f);
 
-            scroll = GUI.BeginScrollView(rect, scroll, contentRect);
+            scroll = GUI.BeginScrollView(timelineViewRect, scroll, contentRect);
 
-            Rect gridRect = new Rect(0, 0, contentRect.width, TimelineHeight);
+            Rect gridRect = new Rect(0, 0, contentRect.width, waveAreaHeight);
             DrawGrid(gridRect, laneHeight);
             DrawWaveLabels(gridRect, laneHeight);
             DrawEvents(gridRect, laneHeight);
-            DrawMouseGuide(gridRect, laneHeight, rect);
-            DrawSelectedInspector(new Rect(0, TimelineHeight + 8f, contentRect.width, 52f));
+            DrawMouseGuide(gridRect, laneHeight, timelineViewRect);
 
             GUI.EndScrollView();
 
-            HandleMouse(gridRect, laneHeight, rect);
+            HandleMouse(gridRect, laneHeight, timelineViewRect);
+            DrawSelectedInspector(inspectorRect);
+            return timelineViewRect;
         }
 
         private float ComputeTimelineWidthSeconds()
@@ -280,7 +302,7 @@ namespace TappyTale
 
                 // tiny boss toggle
                 Rect toggleRect = new Rect(eventRect.xMax - 20f, eventRect.y + 4f, 16f, 16f);
-                bool newBoss = GUI.Toggle(toggleRect, e.IsBoss, "B");
+                bool newBoss = GUI.Toggle(toggleRect, e.IsBoss, ToggleBossButtonContent);
                 if (newBoss != e.IsBoss)
                 {
                     Undo.RecordObject(config, "Toggle Boss");
@@ -301,41 +323,69 @@ namespace TappyTale
 
         private void DrawSelectedInspector(Rect rect)
         {
+            EditorGUI.DrawRect(rect, new Color(0.13f, 0.13f, 0.13f, 1f));
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 1f, rect.height), new Color(1f, 1f, 1f, 0.08f));
+
+            Rect body = new Rect(rect.x + 8f, rect.y + 8f, rect.width - 16f, rect.height - 16f);
+            GUILayout.BeginArea(body);
+
+            GUILayout.Label("Selected Timeline Event", EditorStyles.boldLabel);
+            GUILayout.Space(4f);
+
             if (selectedIndex < 0 || config.Events == null || selectedIndex >= config.Events.Count)
             {
-                GUI.Label(rect, "Select an event to edit. Drag prefabs into the timeline to create events.", EditorStyles.centeredGreyMiniLabel);
+                EditorGUILayout.HelpBox("Select an event in the timeline to edit all its fields here.", MessageType.Info);
+                GUILayout.EndArea();
                 return;
             }
 
             var e = config.Events[selectedIndex];
-            if (e == null) return;
+            if (e == null)
+            {
+                EditorGUILayout.HelpBox("Selected event is null.", MessageType.Warning);
+                GUILayout.EndArea();
+                return;
+            }
 
-            Rect r = rect;
-            r.x += 8f; r.width -= 16f;
+            EditorGUI.BeginChangeCheck();
+            var prefab = (GameObject)EditorGUILayout.ObjectField("Prefab", e.Prefab, typeof(GameObject), false);
+            int waveIndex = EditorGUILayout.IntSlider("WaveIndex", e.WaveIndex, 0, Mathf.Max(0, config.WaveCount - 1));
+            float spawnTime = EditorGUILayout.FloatField("Spawn Time (s)", e.SpawnTime);
+            bool isBoss = EditorGUILayout.Toggle("Is Boss", e.IsBoss);
 
-            GUILayout.BeginArea(r);
+            GUILayout.Space(6f);
+            EditorGUILayout.LabelField("Computed", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Event Index", selectedIndex.ToString());
+            EditorGUILayout.LabelField("Time Snap", snapEnabled ? $"{CurrentSnapSeconds:0.00}s" : "Off");
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(config, "Edit Timeline Event");
+                e.Prefab = prefab;
+                e.WaveIndex = Mathf.Clamp(waveIndex, 0, Mathf.Max(0, config.WaveCount - 1));
+                e.SpawnTime = Mathf.Max(0f, spawnTime);
+                if (snapEnabled) e.SpawnTime = ApplySnap(e.SpawnTime, false);
+                e.IsBoss = isBoss;
+                EditorUtility.SetDirty(config);
+                Repaint();
+            }
+
+            GUILayout.FlexibleSpace();
             using (new EditorGUILayout.HorizontalScope())
             {
-                EditorGUI.BeginChangeCheck();
-
-                int waveIndex = EditorGUILayout.IntField("WaveIndex", e.WaveIndex, GUILayout.Width(240));
-                float spawnTime = EditorGUILayout.FloatField("SpawnTime", e.SpawnTime, GUILayout.Width(240));
-                bool isBoss = EditorGUILayout.Toggle("IsBoss", e.IsBoss, GUILayout.Width(140));
-                var prefab = (GameObject)EditorGUILayout.ObjectField("Prefab", e.Prefab, typeof(GameObject), false);
-
-                if (EditorGUI.EndChangeCheck())
+                if (GUILayout.Button(NudgeMinusButtonContent))
                 {
-                    Undo.RecordObject(config, "Edit Event");
-                    e.WaveIndex = Mathf.Clamp(waveIndex, 0, Mathf.Max(0, config.WaveCount - 1));
-                    e.SpawnTime = Mathf.Max(0f, spawnTime);
-                    e.IsBoss = isBoss;
-                    e.Prefab = prefab;
-                    EditorUtility.SetDirty(config);
+                    NudgeSelectedEvent(-CurrentSnapSeconds, 0);
                 }
+                if (GUILayout.Button(NudgePlusButtonContent))
+                {
+                    NudgeSelectedEvent(CurrentSnapSeconds, 0);
+                }
+            }
 
-                GUILayout.FlexibleSpace();
-
-                if (GUILayout.Button("Duplicate", GUILayout.Width(90)))
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button(DuplicateButtonContent))
                 {
                     Undo.RecordObject(config, "Duplicate Event");
                     var copy = new WaveTimelineEvent
@@ -348,16 +398,15 @@ namespace TappyTale
                     config.Events.Add(copy);
                     selectedIndex = config.Events.Count - 1;
                     EditorUtility.SetDirty(config);
+                    SaveConfig();
                 }
 
-                if (GUILayout.Button("Delete", GUILayout.Width(90)))
+                if (GUILayout.Button(DeleteButtonContent))
                 {
-                    Undo.RecordObject(config, "Delete Event");
-                    config.Events.RemoveAt(selectedIndex);
-                    selectedIndex = -1;
-                    EditorUtility.SetDirty(config);
+                    DeleteSelectedEvent();
                 }
             }
+
             GUILayout.EndArea();
         }
 
@@ -514,7 +563,9 @@ namespace TappyTale
             Event ev = Event.current;
             if (ev == null) return;
 
-            Rect contentRect = new Rect(timelineRect.x, timelineRect.y, timelineRect.width, TimelineHeight);
+            float laneHeight = Mathf.Max(LaneHeightMin, TimelineHeight / Mathf.Max(1, config.WaveCount));
+            float waveAreaHeight = Mathf.Max(TimelineHeight, laneHeight * Mathf.Max(1, config.WaveCount));
+            Rect contentRect = new Rect(timelineRect.x, timelineRect.y, timelineRect.width, Mathf.Min(timelineRect.height, waveAreaHeight));
             if (!contentRect.Contains(ev.mousePosition)) return;
 
             if (ev.type == EventType.DragUpdated || ev.type == EventType.DragPerform)
@@ -534,7 +585,7 @@ namespace TappyTale
                     DragAndDrop.AcceptDrag();
 
                     Vector2 mouse = GetContentMousePosition(ev, timelineRect);
-                    int wave = Mathf.FloorToInt(mouse.y / Mathf.Max(1f, TimelineHeight / Mathf.Max(1, config.WaveCount)));
+                    int wave = Mathf.FloorToInt(mouse.y / laneHeight);
                     float time = XToSeconds(mouse.x);
                     time = ApplySnap(time, ev.shift);
 
