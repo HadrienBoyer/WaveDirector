@@ -22,6 +22,14 @@ namespace TappyTale
         private bool isDragging;
         private int draggingIndex = -1;
         private Vector2 dragOffset;
+        private float zoomX = 1f;
+        private bool snapEnabled = true;
+        private int snapIndex = 2;
+        private bool preciseHitTesting = true;
+        private bool showMouseGuide = true;
+
+        private static readonly float[] SnapOptions = { 0.01f, 0.05f, 0.10f, 0.25f, 0.50f, 1.00f };
+        private static readonly string[] SnapLabels = { "0.01s", "0.05s", "0.10s", "0.25s", "0.50s", "1.00s" };
 
         [MenuItem("TappyTale/Waves/Wave Timeline Editor")]
         public static void OpenMenu()
@@ -110,6 +118,17 @@ namespace TappyTale
                             EditorUtility.SetDirty(config);
                         }
 
+                        GUILayout.Space(8f);
+                        GUILayout.Label("Zoom", GUILayout.Width(36f));
+                        zoomX = EditorGUILayout.Slider(zoomX, 0.5f, 3.0f, GUILayout.Width(180f));
+
+                        snapEnabled = GUILayout.Toggle(snapEnabled, "Snap", EditorStyles.toolbarButton, GUILayout.Width(52f));
+                        snapIndex = EditorGUILayout.Popup(snapIndex, SnapLabels, GUILayout.Width(70f));
+                        snapIndex = Mathf.Clamp(snapIndex, 0, SnapOptions.Length - 1);
+
+                        preciseHitTesting = GUILayout.Toggle(preciseHitTesting, "Large Hitbox", EditorStyles.toolbarButton, GUILayout.Width(94f));
+                        showMouseGuide = GUILayout.Toggle(showMouseGuide, "Guide", EditorStyles.toolbarButton, GUILayout.Width(58f));
+
                         GUILayout.FlexibleSpace();
 
                         bool canPreview = EditorApplication.isPlaying;
@@ -128,6 +147,14 @@ namespace TappyTale
                                 }
                             }
                         }
+
+                        using (new EditorGUI.DisabledScope(selectedIndex < 0 || config.Events == null || selectedIndex >= config.Events.Count))
+                        {
+                            if (GUILayout.Button("Frame Selected", GUILayout.Width(120)))
+                            {
+                                FrameSelectedEvent();
+                            }
+                        }
                     }
                 }
             }
@@ -136,7 +163,7 @@ namespace TappyTale
         private void DrawTimeline(Rect rect)
         {
             float laneHeight = Mathf.Max(LaneHeightMin, TimelineHeight / Mathf.Max(1, config.WaveCount));
-            float timelineWidth = ComputeTimelineWidthSeconds() / TimePerUnit * UnitWidth + LeftPadding + 200f;
+            float timelineWidth = ComputeTimelineWidthSeconds() / TimePerUnit * UnitWidthPx + LeftPadding + 200f;
             Rect contentRect = new Rect(0, 0, timelineWidth, TimelineHeight + 60f);
 
             scroll = GUI.BeginScrollView(rect, scroll, contentRect);
@@ -145,11 +172,12 @@ namespace TappyTale
             DrawGrid(gridRect, laneHeight);
             DrawWaveLabels(gridRect, laneHeight);
             DrawEvents(gridRect, laneHeight);
+            DrawMouseGuide(gridRect, laneHeight, rect);
             DrawSelectedInspector(new Rect(0, TimelineHeight + 8f, contentRect.width, 52f));
 
             GUI.EndScrollView();
 
-            HandleMouse(gridRect, laneHeight);
+            HandleMouse(gridRect, laneHeight, rect);
         }
 
         private float ComputeTimelineWidthSeconds()
@@ -192,7 +220,7 @@ namespace TappyTale
 
             for (int u = 0; u <= units; u++)
             {
-                float x = LeftPadding + u * UnitWidth;
+                float x = LeftPadding + u * UnitWidthPx;
                 bool major = (u % 5) == 0;
                 var color = major ? new Color(1f, 1f, 1f, 0.20f) : new Color(1f, 1f, 1f, 0.08f);
                 EditorGUI.DrawRect(new Rect(x, 0, 1f, rect.height), color);
@@ -264,7 +292,7 @@ namespace TappyTale
 
         private Rect GetEventRect(WaveTimelineEvent e, float laneHeight)
         {
-            float x = LeftPadding + (e.SpawnTime / TimePerUnit) * UnitWidth;
+            float x = SecondsToX(e.SpawnTime);
             float y = Mathf.Clamp(e.WaveIndex, 0, Mathf.Max(0, config.WaveCount - 1)) * laneHeight + 2f;
             float w = 140f;
             float h = Mathf.Max(18f, laneHeight - 4f);
@@ -333,12 +361,19 @@ namespace TappyTale
             GUILayout.EndArea();
         }
 
-        private void HandleMouse(Rect gridRect, float laneHeight)
+        private void HandleMouse(Rect gridRect, float laneHeight, Rect timelineRect)
         {
             Event ev = Event.current;
             if (ev == null) return;
 
-            Vector2 mouse = ev.mousePosition + scroll;
+            if (HandleKeyboardShortcuts(ev))
+            {
+                Repaint();
+                ev.Use();
+                return;
+            }
+
+            Vector2 mouse = GetContentMousePosition(ev, timelineRect);
 
             if (ev.type == EventType.MouseDown && ev.button == 0)
             {
@@ -365,10 +400,10 @@ namespace TappyTale
                     float x = mouse.x - dragOffset.x;
                     float y = mouse.y - dragOffset.y;
 
-                    float time = (x - LeftPadding) / UnitWidth * TimePerUnit;
+                    float time = XToSeconds(x);
                     int wave = Mathf.FloorToInt(y / laneHeight);
 
-                    time = Snap(time, TimePerUnit / 5f); // 0.1s snaps with default settings
+                    time = ApplySnap(time, ev.shift);
 
                     Undo.RecordObject(config, "Move Event");
                     e.SpawnTime = Mathf.Max(0f, time);
@@ -440,15 +475,36 @@ namespace TappyTale
         {
             if (config == null || config.Events == null) return -1;
 
+            int best = -1;
+            float bestDistSq = float.MaxValue;
+
             for (int i = config.Events.Count - 1; i >= 0; i--)
             {
                 var e = config.Events[i];
                 if (e == null) continue;
                 Rect r = GetEventRect(e, laneHeight);
-                if (r.Contains(mouse)) return i;
+                float laneTop = Mathf.Clamp(e.WaveIndex, 0, Mathf.Max(0, config.WaveCount - 1)) * laneHeight;
+                Rect hitRect;
+                if (preciseHitTesting)
+                {
+                    // Allow selecting an event from anywhere along the full lane height at its timeline X-range.
+                    hitRect = new Rect(r.x - 10f, laneTop, r.width + 20f, laneHeight);
+                }
+                else
+                {
+                    hitRect = r;
+                }
+                if (!hitRect.Contains(mouse)) continue;
+
+                float d = (mouse - r.center).sqrMagnitude;
+                if (d < bestDistSq)
+                {
+                    bestDistSq = d;
+                    best = i;
+                }
             }
 
-            return -1;
+            return best;
         }
 
         private void HandleDragAndDrop(Rect timelineRect)
@@ -477,10 +533,10 @@ namespace TappyTale
                 {
                     DragAndDrop.AcceptDrag();
 
-                    Vector2 mouse = ev.mousePosition + scroll;
+                    Vector2 mouse = GetContentMousePosition(ev, timelineRect);
                     int wave = Mathf.FloorToInt(mouse.y / Mathf.Max(1f, TimelineHeight / Mathf.Max(1, config.WaveCount)));
-                    float time = (mouse.x - LeftPadding) / UnitWidth * TimePerUnit;
-                    time = Snap(time, TimePerUnit / 5f);
+                    float time = XToSeconds(mouse.x);
+                    time = ApplySnap(time, ev.shift);
 
                     foreach (var obj in DragAndDrop.objectReferences)
                     {
@@ -506,11 +562,131 @@ namespace TappyTale
             }
         }
 
+        private void DrawMouseGuide(Rect gridRect, float laneHeight, Rect timelineRect)
+        {
+            if (!showMouseGuide) return;
+
+            Event ev = Event.current;
+            if (ev == null) return;
+
+            Vector2 mouse = GetContentMousePosition(ev, timelineRect);
+            if (!gridRect.Contains(mouse)) return;
+
+            float x = mouse.x;
+            EditorGUI.DrawRect(new Rect(x, 0f, 1f, gridRect.height), new Color(1f, 1f, 1f, 0.35f));
+
+            float t = Mathf.Max(0f, XToSeconds(x));
+            int wave = Mathf.Clamp(Mathf.FloorToInt(mouse.y / Mathf.Max(1f, laneHeight)), 0, Mathf.Max(0, config.WaveCount - 1));
+            GUI.Label(new Rect(x + 6f, gridRect.yMax - 18f, 140f, 16f), $"t {t:0.00}s  |  W{wave + 1}", EditorStyles.whiteMiniLabel);
+        }
+
+        private bool HandleKeyboardShortcuts(Event ev)
+        {
+            if (ev.type != EventType.KeyDown) return false;
+            if (config == null || config.Events == null) return false;
+            if (selectedIndex < 0 || selectedIndex >= config.Events.Count) return false;
+            if (EditorGUIUtility.editingTextField) return false;
+
+            float step = snapEnabled ? Mathf.Max(0.01f, CurrentSnapSeconds) : 0.01f;
+            if (ev.shift) step *= 0.25f;
+            if (ev.control || ev.command) step *= 5f;
+
+            switch (ev.keyCode)
+            {
+                case KeyCode.LeftArrow:
+                    return NudgeSelectedEvent(-step, 0);
+                case KeyCode.RightArrow:
+                    return NudgeSelectedEvent(step, 0);
+                case KeyCode.UpArrow:
+                    return NudgeSelectedEvent(0f, -1);
+                case KeyCode.DownArrow:
+                    return NudgeSelectedEvent(0f, 1);
+                case KeyCode.Delete:
+                case KeyCode.Backspace:
+                    return DeleteSelectedEvent();
+                default:
+                    return false;
+            }
+        }
+
+        private bool NudgeSelectedEvent(float deltaSeconds, int deltaWave)
+        {
+            if (config == null || config.Events == null) return false;
+            if (selectedIndex < 0 || selectedIndex >= config.Events.Count) return false;
+
+            var e = config.Events[selectedIndex];
+            if (e == null) return false;
+
+            Undo.RecordObject(config, "Nudge Event");
+            e.SpawnTime = Mathf.Max(0f, e.SpawnTime + deltaSeconds);
+            e.WaveIndex = Mathf.Clamp(e.WaveIndex + deltaWave, 0, Mathf.Max(0, config.WaveCount - 1));
+            if (deltaSeconds != 0f) e.SpawnTime = ApplySnap(e.SpawnTime, false);
+            EditorUtility.SetDirty(config);
+            SaveConfig();
+            return true;
+        }
+
+        private bool DeleteSelectedEvent()
+        {
+            if (config == null || config.Events == null) return false;
+            if (selectedIndex < 0 || selectedIndex >= config.Events.Count) return false;
+
+            Undo.RecordObject(config, "Delete Event");
+            config.Events.RemoveAt(selectedIndex);
+            selectedIndex = -1;
+            EditorUtility.SetDirty(config);
+            SaveConfig();
+            return true;
+        }
+
+        private void FrameSelectedEvent()
+        {
+            if (config == null || config.Events == null) return;
+            if (selectedIndex < 0 || selectedIndex >= config.Events.Count) return;
+            var e = config.Events[selectedIndex];
+            if (e == null) return;
+
+            float laneHeight = Mathf.Max(LaneHeightMin, TimelineHeight / Mathf.Max(1, config.WaveCount));
+            Rect r = GetEventRect(e, laneHeight);
+            scroll.x = Mathf.Max(0f, r.x - position.width * 0.35f);
+            scroll.y = Mathf.Max(0f, r.y - laneHeight);
+        }
+
+        private static Rect ExpandRect(Rect r, float xPad, float yPad)
+        {
+            return new Rect(r.x - xPad, r.y - yPad, r.width + xPad * 2f, r.height + yPad * 2f);
+        }
+
+        private Vector2 GetContentMousePosition(Event ev, Rect timelineRect)
+        {
+            // Convert window-space pointer to timeline content-space coordinates.
+            return ev.mousePosition - timelineRect.position + scroll;
+        }
+
         private static float Snap(float value, float snap)
         {
             if (snap <= 0f) return value;
             return Mathf.Round(value / snap) * snap;
         }
+
+        private float ApplySnap(float value, bool bypassSnap)
+        {
+            if (!snapEnabled || bypassSnap) return value;
+            return Snap(value, CurrentSnapSeconds);
+        }
+
+        private float SecondsToX(float seconds)
+        {
+            return LeftPadding + (seconds / TimePerUnit) * UnitWidthPx;
+        }
+
+        private float XToSeconds(float x)
+        {
+            return (x - LeftPadding) / UnitWidthPx * TimePerUnit;
+        }
+
+        private float CurrentSnapSeconds => SnapOptions[Mathf.Clamp(snapIndex, 0, SnapOptions.Length - 1)];
+        private float UnitWidthPx => UnitWidth * Mathf.Clamp(zoomX, 0.5f, 3.0f);
 
         private static Component FindWaveDirectorComponent()
         {
