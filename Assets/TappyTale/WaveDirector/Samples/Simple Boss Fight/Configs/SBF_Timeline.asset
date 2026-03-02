@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f65093559197f44dc987de69b4e5944c, type: 3}
   m_Name: SBF_Timeline
   m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveTimelineConfig
-  WaveCount: 4
+  WaveCount: 5
   DefaultWaveDurationSeconds: 20
   Waves:
   - Name: Survive (Minions)
@@ -43,6 +43,15 @@ MonoBehaviour:
     EnemyHealthScale: 1
     RewardScale: 1
   - Name: Wave 4
+    TriggerType: 0
+    TriggerTimeSeconds: 20
+    TriggerKillCount: 10
+    TriggerObjectiveId: 
+    SpawnTimeScale: 1
+    EnemySpeedScale: 1
+    EnemyHealthScale: 1
+    RewardScale: 1
+  - Name: Wave 5
     TriggerType: 0
     TriggerTimeSeconds: 20
     TriggerKillCount: 10
