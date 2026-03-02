@@ -172,12 +172,12 @@ namespace TappyTale
             DrawGrid(gridRect, laneHeight);
             DrawWaveLabels(gridRect, laneHeight);
             DrawEvents(gridRect, laneHeight);
-            DrawMouseGuide(gridRect, laneHeight);
+            DrawMouseGuide(gridRect, laneHeight, rect);
             DrawSelectedInspector(new Rect(0, TimelineHeight + 8f, contentRect.width, 52f));
 
             GUI.EndScrollView();
 
-            HandleMouse(gridRect, laneHeight);
+            HandleMouse(gridRect, laneHeight, rect);
         }
 
         private float ComputeTimelineWidthSeconds()
@@ -361,7 +361,7 @@ namespace TappyTale
             GUILayout.EndArea();
         }
 
-        private void HandleMouse(Rect gridRect, float laneHeight)
+        private void HandleMouse(Rect gridRect, float laneHeight, Rect timelineRect)
         {
             Event ev = Event.current;
             if (ev == null) return;
@@ -373,7 +373,7 @@ namespace TappyTale
                 return;
             }
 
-            Vector2 mouse = ev.mousePosition + scroll;
+            Vector2 mouse = GetContentMousePosition(ev, timelineRect);
 
             if (ev.type == EventType.MouseDown && ev.button == 0)
             {
@@ -483,7 +483,17 @@ namespace TappyTale
                 var e = config.Events[i];
                 if (e == null) continue;
                 Rect r = GetEventRect(e, laneHeight);
-                Rect hitRect = preciseHitTesting ? ExpandRect(r, 10f, 8f) : r;
+                float laneTop = Mathf.Clamp(e.WaveIndex, 0, Mathf.Max(0, config.WaveCount - 1)) * laneHeight;
+                Rect hitRect;
+                if (preciseHitTesting)
+                {
+                    // Allow selecting an event from anywhere along the full lane height at its timeline X-range.
+                    hitRect = new Rect(r.x - 10f, laneTop, r.width + 20f, laneHeight);
+                }
+                else
+                {
+                    hitRect = r;
+                }
                 if (!hitRect.Contains(mouse)) continue;
 
                 float d = (mouse - r.center).sqrMagnitude;
@@ -523,7 +533,7 @@ namespace TappyTale
                 {
                     DragAndDrop.AcceptDrag();
 
-                    Vector2 mouse = ev.mousePosition + scroll;
+                    Vector2 mouse = GetContentMousePosition(ev, timelineRect);
                     int wave = Mathf.FloorToInt(mouse.y / Mathf.Max(1f, TimelineHeight / Mathf.Max(1, config.WaveCount)));
                     float time = XToSeconds(mouse.x);
                     time = ApplySnap(time, ev.shift);
@@ -552,14 +562,14 @@ namespace TappyTale
             }
         }
 
-        private void DrawMouseGuide(Rect gridRect, float laneHeight)
+        private void DrawMouseGuide(Rect gridRect, float laneHeight, Rect timelineRect)
         {
             if (!showMouseGuide) return;
 
             Event ev = Event.current;
             if (ev == null) return;
 
-            Vector2 mouse = ev.mousePosition + scroll;
+            Vector2 mouse = GetContentMousePosition(ev, timelineRect);
             if (!gridRect.Contains(mouse)) return;
 
             float x = mouse.x;
@@ -645,6 +655,12 @@ namespace TappyTale
         private static Rect ExpandRect(Rect r, float xPad, float yPad)
         {
             return new Rect(r.x - xPad, r.y - yPad, r.width + xPad * 2f, r.height + yPad * 2f);
+        }
+
+        private Vector2 GetContentMousePosition(Event ev, Rect timelineRect)
+        {
+            // Convert window-space pointer to timeline content-space coordinates.
+            return ev.mousePosition - timelineRect.position + scroll;
         }
 
         private static float Snap(float value, float snap)

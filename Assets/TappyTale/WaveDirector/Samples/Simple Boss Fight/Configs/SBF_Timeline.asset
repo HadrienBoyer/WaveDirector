@@ -54,11 +54,11 @@ MonoBehaviour:
   Events:
   - WaveIndex: 0
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: -0
+    SpawnTime: 0
     IsBoss: 0
   - WaveIndex: 2
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 3.5
+    SpawnTime: 4
     IsBoss: 0
   - WaveIndex: 0
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
@@ -110,7 +110,7 @@ MonoBehaviour:
     IsBoss: 0
   - WaveIndex: 3
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
-    SpawnTime: 2.5
+    SpawnTime: 2
     IsBoss: 0
   - WaveIndex: 3
     Prefab: {fileID: 3454100376614617976, guid: a56a0efe9d0bb48b9aaceabe79fc80ed, type: 3}
