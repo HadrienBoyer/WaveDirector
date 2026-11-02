@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
-    public interface IWaveScalable { void ApplyWaveScaling(in WaveScalingContext context); }
+    public interface IWaveScalable
+    {
+        void ApplyWaveScaling(in WaveScalingContext context);
+    }
 
     public readonly struct WaveScalingContext
     {
@@ -24,7 +28,10 @@ namespace TappyTale.WaveDirector.Runtime
         }
     }
 
-    public interface IPlayerPerformanceProvider { PlayerPerformanceSnapshot GetSnapshot(); }
+    public interface IPlayerPerformanceProvider
+    {
+        PlayerPerformanceSnapshot GetSnapshot();
+    }
 
     public readonly struct PlayerPerformanceSnapshot
     {
@@ -38,7 +45,15 @@ namespace TappyTale.WaveDirector.Runtime
         }
     }
 
-    public interface IWaveRewardHandler { void OnWaveCompleted(int waveIndex, float rewardScale); }
+    public interface IWaveRewardHandler
+    {
+        void OnWaveCompleted(int waveIndex, float rewardScale);
+    }
+
+    public interface IWaveKillSource
+    {
+        event Action<WaveKillEvent> Killed;
+    }
 
     public readonly struct WaveKillEvent
     {

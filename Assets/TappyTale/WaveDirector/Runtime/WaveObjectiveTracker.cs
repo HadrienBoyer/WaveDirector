@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
     public sealed class WaveObjectiveTracker : MonoBehaviour
     {
@@ -19,6 +19,15 @@ namespace TappyTale.WaveDirector.Runtime
             completed.Add(objectiveId);
         }
 
-        public void ClearAll() => completed.Clear();
+        public void Clear(string objectiveId)
+        {
+            if (string.IsNullOrWhiteSpace(objectiveId)) return;
+            completed.Remove(objectiveId);
+        }
+
+        public void ClearAll()
+        {
+            completed.Clear();
+        }
     }
 }

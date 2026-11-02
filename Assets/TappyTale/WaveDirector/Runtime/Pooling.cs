@@ -1,9 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
-    public interface IPoolable { void OnSpawned(); void OnDespawned(); }
+    public interface IPoolable
+    {
+        void OnSpawned();
+        void OnDespawned();
+    }
 
     public sealed class ObjectPool
     {
@@ -20,7 +24,7 @@ namespace TappyTale.WaveDirector.Runtime
             for (int i = 0; i < prewarmCount; i++)
             {
                 var go = Object.Instantiate(prefab, root);
-                go.SetActive(false);
+                PrepareForPool(go);
                 pool.Enqueue(go);
             }
         }
@@ -30,8 +34,16 @@ namespace TappyTale.WaveDirector.Runtime
             if (prefab == null) return null;
 
             GameObject go = null;
-            while (pool.Count > 0 && go == null) go = pool.Dequeue();
-            if (go == null) go = Object.Instantiate(prefab, root);
+            while (pool.Count > 0 && go == null)
+            {
+                go = pool.Dequeue();
+            }
+
+            if (go == null)
+            {
+                go = Object.Instantiate(prefab, root);
+                PrepareForPool(go);
+            }
 
             go.transform.SetParent(null, true);
             go.SetActive(true);
@@ -46,57 +58,19 @@ namespace TappyTale.WaveDirector.Runtime
         {
             if (go == null) return;
 
+            PrepareForPool(go);
+            go.transform.SetParent(root, false);
+            pool.Enqueue(go);
+        }
+
+        private static void PrepareForPool(GameObject go)
+        {
+            if (go == null) return;
+
             var poolables = go.GetComponentsInChildren<IPoolable>(true);
             for (int i = 0; i < poolables.Length; i++) poolables[i].OnDespawned();
 
             go.SetActive(false);
-            go.transform.SetParent(root, false);
-            pool.Enqueue(go);
-        }
-    }
-
-    [DisallowMultipleComponent]
-    public sealed class PoolRegistry : MonoBehaviour
-    {
-        [SerializeField] private Transform poolRoot;
-        [SerializeField, Min(0)] private int defaultPrewarmCount = 8;
-
-        private readonly Dictionary<GameObject, ObjectPool> pools = new Dictionary<GameObject, ObjectPool>(64);
-        public static PoolRegistry Instance { get; private set; }
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            if (poolRoot == null)
-            {
-                var rootGo = new GameObject("Pools");
-                rootGo.transform.SetParent(transform, false);
-                poolRoot = rootGo.transform;
-            }
-        }
-
-        public GameObject Spawn(GameObject prefab)
-        {
-            if (prefab == null) return null;
-            return GetOrCreatePool(prefab).Get();
-        }
-
-        public void Despawn(GameObject prefab, GameObject instance)
-        {
-            if (prefab == null || instance == null) { if (instance != null) Destroy(instance); return; }
-            if (!pools.TryGetValue(prefab, out var pool)) { Destroy(instance); return; }
-            pool.Release(instance);
-        }
-
-        private ObjectPool GetOrCreatePool(GameObject prefab)
-        {
-            if (pools.TryGetValue(prefab, out var existing)) return existing;
-            var pool = new ObjectPool(prefab, defaultPrewarmCount, poolRoot);
-            pools.Add(prefab, pool);
-            return pool;
         }
     }
 }

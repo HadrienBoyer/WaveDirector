@@ -11,15 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e16f025532c646ab861538d58685e8c, type: 3}
   m_Name: WD_Demo_DirectorConfig
-  m_EditorClassIdentifier: TappyTale.WaveDirector.Runtime::TappyTale.WaveDirector.Runtime.WaveDirectorConfig
+  m_EditorClassIdentifier: Assembly-CSharp::TappyTale.WaveDirectorConfig
   Mode: 2
   BaseDifficulty: 1
-  MinDifficulty: 0.6
-  MaxDifficulty: 2
+  MinDifficulty: 0.5
+  MaxDifficulty: 3
   AggressiveWaveRamp: 0.15
-  TargetClearTimeSeconds: 20
-  TargetDamageTaken: 20
+  TargetClearTimeSeconds: 25
+  TargetDamageTaken: 15
   TargetDeaths: 0
-  AdaptiveGain: 0.3
-  AdaptiveSmoothing: 0.8
-  MaxDeltaPerWave: 0.25
+  AdaptiveGain: 0.35
+  AdaptiveSmoothing: 0.75
+  MaxDeltaPerWave: 0.35

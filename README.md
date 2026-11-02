@@ -1,3 +1,5 @@
+![Wave Director Logo](docs/wave-director-logo.png)
+
 # Wave Director - Enemy AI and Boss Rush Wave Spawner Tools
 
 Version 1.1.0 (2026-03-01)
@@ -20,6 +22,7 @@ Import this asset into your Unity project, then open the documentation at:
 `Assets/TappyTale/WaveDirector/Documentation/README.md`
 
 For detailed installation and setup instructions, see:
+
 - [Installation Guide](Assets/TappyTale/WaveDirector/Documentation/README_INSTALL.md)
 - [Quick Start](Assets/TappyTale/WaveDirector/Documentation/README_INSTALL.md)
 

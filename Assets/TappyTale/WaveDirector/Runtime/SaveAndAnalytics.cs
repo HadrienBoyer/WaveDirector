@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace TappyTale.WaveDirector.Runtime
+namespace TappyTale
 {
     [Serializable]
     public sealed class WaveSaveData
@@ -24,7 +25,7 @@ namespace TappyTale.WaveDirector.Runtime
             string safeGuid = MakeSafeFileName(timelineGuid);
             string folder = Path.Combine(Application.persistentDataPath, SaveFolderName);
             Directory.CreateDirectory(folder);
-            return Path.Combine(folder, safeName + "_" + safeGuid + ".json");
+            return Path.Combine(folder, $"{safeName}_{safeGuid}.json");
         }
 
         public static bool TryLoad(string path, out WaveSaveData data)
@@ -33,12 +34,14 @@ namespace TappyTale.WaveDirector.Runtime
             try
             {
                 if (!File.Exists(path)) return false;
-                data = JsonUtility.FromJson<WaveSaveData>(File.ReadAllText(path));
+                string json = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(json)) return false;
+                data = JsonUtility.FromJson<WaveSaveData>(json);
                 return data != null;
             }
             catch (Exception ex)
             {
-                Debug.LogWarning("[WaveDirector] Load failed: " + ex.Message);
+                Debug.LogWarning($"[WaveSaveSystem] Load failed: {ex.Message}");
                 return false;
             }
         }
@@ -46,14 +49,16 @@ namespace TappyTale.WaveDirector.Runtime
         public static void Save(string path, WaveSaveData data)
         {
             if (data == null) return;
+
             try
             {
                 data.LastUpdatedUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                File.WriteAllText(path, JsonUtility.ToJson(data, true));
+                string json = JsonUtility.ToJson(data, true);
+                File.WriteAllText(path, json);
             }
             catch (Exception ex)
             {
-                Debug.LogWarning("[WaveDirector] Save failed: " + ex.Message);
+                Debug.LogWarning($"[WaveSaveSystem] Save failed: {ex.Message}");
             }
         }
 
@@ -88,20 +93,22 @@ namespace TappyTale.WaveDirector.Runtime
             string safeGuid = MakeSafeFileName(timelineGuid);
             string folder = Path.Combine(Application.persistentDataPath, AnalyticsFolderName);
             Directory.CreateDirectory(folder);
-            return Path.Combine(folder, safeName + "_" + safeGuid + ".jsonl");
+            return Path.Combine(folder, $"{safeName}_{safeGuid}.jsonl");
         }
 
         public static void Append(string path, WaveAnalyticsEntry entry)
         {
             if (entry == null) return;
+
             try
             {
                 entry.TimestampUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                File.AppendAllText(path, JsonUtility.ToJson(entry, false) + Environment.NewLine);
+                string json = JsonUtility.ToJson(entry, false);
+                File.AppendAllText(path, json + Environment.NewLine);
             }
             catch (Exception ex)
             {
-                Debug.LogWarning("[WaveDirector] Analytics append failed: " + ex.Message);
+                Debug.LogWarning($"[WaveAnalyticsLogger] Append failed: {ex.Message}");
             }
         }
 
